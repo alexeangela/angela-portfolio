@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Angela — Content Creator</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --wine:    #7F1330;
+  --blush:   #FFC6BF;
+  --teal:    #003744;
+  --rose:    #B72552;
+  --cream:   #FFF5F3;
+  --yellow:  #FFEE93;
+  --coral:   #FE8982;
+  --white:   #ffffff;
+  --muted:   rgba(127,19,48,0.45);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--cream);
+  color: var(--wine);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 400;
+  overflow-x: hidden;
+}
+
+/* ── GRAIN OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  background-size: 200px;
+  opacity: .5;
+}
+
+/* ── BACKGROUND BLOBS ── */
+.blob-bg {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+}
+.blob {
+  position: absolute; border-radius: 50%;
+  filter: blur(80px); opacity: .18;
+}
+.blob-1 { width: 600px; height: 600px; background: var(--rose);   top: -200px; right: -150px; }
+.blob-2 { width: 400px; height: 400px; background: var(--teal);   bottom: 10%;  left: -100px; }
+.blob-3 { width: 300px; height: 300px; background: var(--coral);  top: 40%;    right: 10%; }
+
+/* ── GLASS MIXIN UTILITY ── */
+.glass {
+  background: rgba(255,245,243,0.55);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255,255,255,0.65);
+  box-shadow: 0 8px 32px rgba(127,19,48,0.08), inset 0 1px 0 rgba(255,255,255,0.7);
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1.2rem 4rem;
+  background: rgba(255,245,243,0.72);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid rgba(183,37,82,0.12);
+}
+
+.nav-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem; font-style: italic; font-weight: 600;
+  color: var(--wine); letter-spacing: .02em;
+}
+
+.nav-links { display: flex; gap: 2.5rem; list-style: none; }
+.nav-links a {
+  color: var(--wine); text-decoration: none;
+  font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 500;
+  opacity: .6; transition: opacity .25s, color .25s;
+}
+.nav-links a:hover { opacity: 1; color: var(--rose); }
+
+.nav-cta {
+  background: var(--rose); color: white;
+  padding: .55rem 1.5rem; font-size: .78rem;
+  letter-spacing: .1em; text-transform: uppercase; font-weight: 500;
+  text-decoration: none; border-radius: 100px;
+  border: 1px solid rgba(255,255,255,.25);
+  box-shadow: 0 4px 16px rgba(183,37,82,.3);
+  transition: transform .2s, box-shadow .2s;
+}
+.nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(183,37,82,.4); }
+
+/* ── HERO ── */
+#hero {
+  min-height: 100vh;
+  display: grid; grid-template-columns: 1fr 1fr;
+  align-items: center; gap: 5rem;
+  padding: 9rem 4rem 5rem;
+  position: relative; z-index: 1;
+}
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: .7rem;
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(183,37,82,0.2);
+  padding: .45rem 1.1rem; border-radius: 100px;
+  font-size: .75rem; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--rose); font-weight: 600;
+  margin-bottom: 2rem;
+  opacity: 0; animation: fadeUp .7s .1s forwards;
+}
+.live-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--rose);
+  animation: livePulse 2s infinite;
+}
+@keyframes livePulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(183,37,82,.4); }
+  50% { box-shadow: 0 0 0 5px rgba(183,37,82,0); }
+}
+
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(4rem, 6.5vw, 7.5rem);
+  line-height: .95; font-weight: 700;
+  letter-spacing: -.02em; margin-bottom: 1.8rem;
+  opacity: 0; animation: fadeUp .7s .25s forwards;
+}
+.hero-title em { font-style: italic; color: var(--rose); display: block; }
+
+.hero-desc {
+  font-size: 1.05rem; line-height: 1.85;
+  color: rgba(0,55,68,0.75); max-width: 500px;
+  margin-bottom: 2.8rem;
+  opacity: 0; animation: fadeUp .7s .4s forwards;
+}
+.hero-desc strong { color: var(--teal); font-weight: 600; }
+
+.hero-actions {
+  display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;
+  opacity: 0; animation: fadeUp .7s .55s forwards;
+}
+
+.btn-primary {
+  display: inline-flex; align-items: center; gap: .6rem;
+  background: var(--rose); color: white;
+  padding: .95rem 2.2rem; border-radius: 100px;
+  font-size: .82rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 600;
+  text-decoration: none;
+  border: 1px solid rgba(255,255,255,.2);
+  box-shadow: 0 6px 24px rgba(183,37,82,.35), inset 0 1px 0 rgba(255,255,255,.15);
+  transition: all .25s;
+}
+.btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(183,37,82,.45); background: var(--wine); }
+
+.btn-ghost {
+  color: var(--wine); text-decoration: none;
+  font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 500;
+  opacity: .6; transition: opacity .25s;
+  padding: .95rem 0;
+}
+.btn-ghost:hover { opacity: 1; }
+
+/* HERO RIGHT — Stats Glass Cards */
+.hero-right {
+  display: flex; flex-direction: column; gap: 1rem; align-items: stretch;
+  opacity: 0; animation: fadeRight .7s .4s forwards;
+}
+
+.stat-glass {
+  padding: 1.8rem 2rem;
+  background: rgba(255,255,255,0.5);
+  backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255,255,255,0.7);
+  box-shadow: 0 8px 32px rgba(127,19,48,0.06), inset 0 1px 0 rgba(255,255,255,0.8);
+  border-radius: 20px;
+  transition: transform .25s, box-shadow .25s;
+}
+.stat-glass:hover { transform: translateX(6px); box-shadow: 0 12px 40px rgba(127,19,48,0.1); }
+
+.stat-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3rem; font-weight: 700; color: var(--rose);
+  line-height: 1; display: block; margin-bottom: .25rem;
+}
+.stat-label {
+  font-size: .75rem; letter-spacing: .12em; text-transform: uppercase;
+  color: rgba(0,55,68,0.55); display: block;
+}
+
+/* ── TICKER ── */
+.ticker-wrap {
+  position: relative; z-index: 1;
+  overflow: hidden; padding: 1rem 0;
+  background: var(--teal);
+  border-top: 1px solid rgba(255,255,255,.1);
+  border-bottom: 1px solid rgba(255,255,255,.1);
+}
+.ticker {
+  display: flex; gap: 0; white-space: nowrap;
+  animation: tickerMove 18s linear infinite;
+}
+.ticker-inner { display: flex; gap: 0; }
+.tick-item {
+  display: inline-flex; align-items: center; gap: 1.5rem;
+  padding: 0 2rem;
+  font-size: .75rem; letter-spacing: .18em; text-transform: uppercase;
+  font-weight: 500; color: rgba(255,245,243,0.75);
+}
+.tick-item .sep { color: var(--coral); font-size: .5rem; }
+@keyframes tickerMove {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ── SECTION BASE ── */
+section { padding: 7rem 4rem; position: relative; z-index: 1; }
+
+.s-label {
+  font-size: .7rem; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--rose); font-weight: 600; margin-bottom: .9rem; display: flex; align-items: center; gap: .7rem;
+}
+.s-label::before { content: ''; width: 20px; height: 1.5px; background: var(--rose); display: block; }
+
+.s-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2.4rem, 4vw, 4.2rem);
+  line-height: 1.0; font-weight: 700; letter-spacing: -.02em;
+  margin-bottom: 1.2rem;
+}
+.s-title em { font-style: italic; color: var(--rose); }
+
+/* ── ABOUT ── */
+#about {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 7rem; align-items: start;
+  border-top: 1px solid rgba(183,37,82,0.12);
+}
+
+.about-text .s-title { margin-bottom: 1.5rem; }
+.about-text p {
+  color: rgba(0,55,68,0.7); line-height: 1.95; font-size: .98rem; margin-bottom: 1.1rem;
+}
+.about-text strong { color: var(--teal); font-weight: 600; }
+.about-text em { font-style: italic; color: var(--rose); }
+
+.collab-wrap { padding-top: .5rem; }
+.collab-heading {
+  font-size: .68rem; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--rose); margin-bottom: 1rem; font-weight: 600;
+  display: flex; align-items: center; gap: .6rem;
+}
+.collab-heading::before { content: ''; width: 16px; height: 1px; background: var(--rose); }
+
+.collab-list { display: flex; flex-direction: column; gap: .6rem; }
+
+.collab-item {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 1rem 1.3rem;
+  background: rgba(255,255,255,0.5);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.7);
+  box-shadow: 0 4px 16px rgba(127,19,48,0.05), inset 0 1px 0 rgba(255,255,255,.8);
+  border-radius: 14px;
+  transition: all .25s;
+}
+.collab-item:hover {
+  border-color: rgba(183,37,82,0.25);
+  box-shadow: 0 8px 24px rgba(183,37,82,0.1);
+  transform: translateX(4px);
+}
+.collab-dot { width: 5px; height: 5px; background: var(--rose); border-radius: 50%; flex-shrink: 0; }
+.collab-name { font-size: .87rem; font-weight: 500; color: var(--wine); flex: 1; }
+.collab-role { font-size: .72rem; color: rgba(0,55,68,0.5); letter-spacing: .04em; white-space: nowrap; }
+
+/* ── SERVIZI ── */
+#services {
+  background: var(--teal);
+  border-top: none;
+}
+#services .s-label { color: var(--coral); }
+#services .s-label::before { background: var(--coral); }
+#services .s-title { color: white; }
+#services .s-title em { color: var(--coral); }
+#services .section-intro {
+  color: rgba(255,245,243,0.6); line-height: 1.85; font-size: .95rem;
+  max-width: 560px; margin-bottom: 3.5rem;
+}
+
+.services-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1px; background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 24px; overflow: hidden;
+}
+
+.svc-card {
+  background: rgba(0,55,68,0.6);
+  backdrop-filter: blur(20px);
+  padding: 2.5rem 2rem;
+  position: relative; overflow: hidden;
+  transition: background .3s;
+}
+.svc-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 2px; background: linear-gradient(90deg, transparent, var(--coral), transparent);
+  opacity: 0; transition: opacity .3s;
+}
+.svc-card:hover { background: rgba(0,55,68,0.85); }
+.svc-card:hover::before { opacity: 1; }
+
+.svc-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.2rem; font-weight: 700;
+  color: rgba(254,137,130,0.2); display: block; margin-bottom: .8rem; line-height: 1;
+}
+.svc-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.4rem; font-weight: 600; color: white;
+  margin-bottom: .8rem; letter-spacing: -.01em;
+}
+.svc-desc { font-size: .85rem; color: rgba(255,245,243,0.5); line-height: 1.75; }
+
+/* ── OFFRO ── */
+#offer {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 7rem;
+  border-top: 1px solid rgba(183,37,82,0.1);
+}
+
+.offer-intro p {
+  color: rgba(0,55,68,0.7); line-height: 1.9; font-size: .97rem; margin-top: 1rem;
+}
+
+.offer-items { display: flex; flex-direction: column; gap: 0; margin-top: 1rem; }
+.offer-row {
+  display: grid; grid-template-columns: 44px 1fr; gap: 1.2rem;
+  padding: 1.4rem 0; border-bottom: 1px solid rgba(183,37,82,0.08);
+  transition: background .2s; border-radius: 8px; margin: 0 -.5rem; padding: 1.4rem .5rem;
+}
+.offer-row:hover { background: rgba(183,37,82,0.04); }
+
+.offer-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: rgba(255,255,255,0.7); border: 1px solid rgba(183,37,82,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(127,19,48,.06);
+}
+.offer-row h4 { font-size: .92rem; font-weight: 600; color: var(--wine); margin-bottom: .3rem; letter-spacing: -.01em; }
+.offer-row p  { font-size: .82rem; color: rgba(0,55,68,0.6); line-height: 1.65; }
+
+/* ── RISULTATI ── */
+#results {
+  background: linear-gradient(135deg, var(--wine) 0%, var(--rose) 100%);
+  border-top: none;
+}
+#results .s-label { color: var(--blush); }
+#results .s-label::before { background: var(--blush); }
+#results .s-title { color: white; }
+#results .s-title em { color: var(--yellow); }
+#results .section-intro { color: rgba(255,198,191,0.7); font-size: .95rem; line-height: 1.8; max-width: 500px; margin-bottom: 3.5rem; }
+
+.results-grid {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; margin-bottom: 4rem;
+}
+
+.res-card {
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 20px; padding: 2.5rem 2rem;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.15);
+  transition: transform .25s, background .25s;
+}
+.res-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.18); }
+
+.res-metric {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3.2rem; font-weight: 700; color: white;
+  line-height: 1; display: block; margin-bottom: .3rem;
+}
+.res-sublabel {
+  font-size: .75rem; letter-spacing: .12em; text-transform: uppercase;
+  color: rgba(255,198,191,0.7); display: block; margin-bottom: 1.5rem;
+}
+.res-desc { font-size: .85rem; color: rgba(255,255,255,0.6); line-height: 1.7; }
+
+/* VIDEO PLACEHOLDERS */
+.video-row {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem;
+}
+.vid-slot {
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(16px);
+  border: 1.5px dashed rgba(255,255,255,0.3);
+  border-radius: 16px; padding: 2rem; text-align: center;
+  transition: border-color .25s;
+}
+.vid-slot:hover { border-color: rgba(255,255,255,0.6); }
+.vid-icon { font-size: 2rem; margin-bottom: .8rem; display: block; }
+.vid-slot h4 { font-size: .85rem; color: white; font-weight: 500; margin-bottom: .4rem; }
+.vid-slot p { font-size: .78rem; color: rgba(255,198,191,0.6); }
+.vid-slot .vid-stat {
+  display: inline-block; margin-top: .9rem;
+  background: rgba(255,255,255,0.15); padding: .3rem .8rem; border-radius: 100px;
+  font-size: .72rem; color: white; font-weight: 600; letter-spacing: .05em;
+}
+
+/* ── OBIETTIVI ── */
+#goals { border-top: 1px solid rgba(183,37,82,0.1); }
+
+.goals-top { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start; margin-bottom: 3.5rem; }
+.goals-top p { color: rgba(0,55,68,0.7); line-height: 1.9; font-size: .97rem; padding-top: 1rem; }
+
+.goals-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1.2rem; }
+
+.goal-card {
+  background: rgba(255,255,255,0.55);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.75);
+  box-shadow: 0 8px 32px rgba(127,19,48,0.06), inset 0 1px 0 rgba(255,255,255,.9);
+  border-radius: 20px; padding: 2rem 1.6rem;
+  transition: transform .25s, box-shadow .25s;
+}
+.goal-card:hover { transform: translateY(-5px); box-shadow: 0 16px 48px rgba(127,19,48,0.12); }
+
+.goal-icon { font-size: 1.6rem; margin-bottom: 1rem; display: block; }
+.goal-title { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-weight: 700; color: var(--wine); margin-bottom: .4rem; }
+.goal-text { font-size: .82rem; color: rgba(0,55,68,0.6); line-height: 1.65; }
+
+/* ── CTA ── */
+#cta {
+  background: var(--teal); text-align: center; padding: 8rem 4rem;
+  position: relative; overflow: hidden;
+}
+#cta::before {
+  content: '';
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  width: 600px; height: 600px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(183,37,82,0.2) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.cta-inner { position: relative; z-index: 1; }
+.cta-pill {
+  display: inline-flex; align-items: center; gap: .6rem;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 100px; padding: .45rem 1.2rem;
+  font-size: .72rem; letter-spacing: .15em; text-transform: uppercase;
+  color: var(--blush); font-weight: 600; margin-bottom: 2rem;
+}
+
+.cta-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2.8rem, 5.5vw, 5.5rem);
+  font-weight: 700; line-height: .95; letter-spacing: -.03em;
+  color: white; margin-bottom: 1.5rem;
+}
+.cta-title em { font-style: italic; color: var(--coral); }
+
+.cta-sub {
+  font-size: 1rem; color: rgba(255,198,191,0.65);
+  max-width: 440px; margin: 0 auto 3rem; line-height: 1.8;
+}
+
+.cta-buttons { display: flex; gap: 1.2rem; justify-content: center; flex-wrap: wrap; }
+
+.btn-cta-main {
+  display: inline-flex; align-items: center; gap: .7rem;
+  background: white; color: var(--wine);
+  padding: 1rem 2.5rem; border-radius: 100px;
+  font-size: .85rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 8px 32px rgba(0,0,0,.2);
+  transition: all .25s;
+}
+.btn-cta-main:hover { transform: translateY(-3px); box-shadow: 0 16px 48px rgba(0,0,0,.25); background: var(--blush); }
+
+.btn-cta-ghost {
+  display: inline-flex; align-items: center; gap: .6rem;
+  background: rgba(255,255,255,0.1);
+  color: white; padding: 1rem 2.5rem; border-radius: 100px;
+  font-size: .85rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 500;
+  text-decoration: none;
+  border: 1px solid rgba(255,255,255,0.2);
+  transition: all .25s;
+}
+.btn-cta-ghost:hover { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,.4); }
+
+/* ── FOOTER ── */
+footer {
+  background: var(--cream); padding: 2.2rem 4rem;
+  display: flex; justify-content: space-between; align-items: center;
+  border-top: 1px solid rgba(183,37,82,0.1);
+  position: relative; z-index: 1;
+}
+.footer-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem; font-style: italic; font-weight: 600; color: var(--wine);
+}
+.footer-copy { font-size: .78rem; color: var(--muted); }
+.footer-links { display: flex; gap: 1.5rem; }
+.footer-links a {
+  font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 500;
+  color: var(--wine); text-decoration: none; opacity: .5; transition: opacity .25s;
+}
+.footer-links a:hover { opacity: 1; }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp   { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:none; } }
+@keyframes fadeRight{ from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:none; } }
+
+.reveal {
+  opacity: 0; transform: translateY(28px);
+  transition: opacity .7s cubic-bezier(.25,.46,.45,.94), transform .7s cubic-bezier(.25,.46,.45,.94);
+}
+.reveal.in { opacity:1; transform:none; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 920px) {
+  nav { padding: 1rem 1.5rem; }
+  .nav-links { display: none; }
+  section { padding: 5rem 1.5rem; }
+  #hero { grid-template-columns: 1fr; padding: 7rem 1.5rem 4rem; }
+  .hero-right { display: none; }
+  #about, #offer, .goals-top { grid-template-columns: 1fr; gap: 3rem; }
+  .services-grid, .results-grid, .video-row, .goals-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- BG BLOBS -->
+<div class="blob-bg">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Angela.</div>
+  <ul class="nav-links">
+    <li><a href="#about">Chi sono</a></li>
+    <li><a href="#services">Servizi</a></li>
+    <li><a href="#results">Risultati</a></li>
+    <li><a href="#goals">Obiettivi</a></li>
+    <li><a href="#cta">Contatti</a></li>
+  </ul>
+  <a href="mailto:viralvenice@gmail.com" class="nav-cta">Scrivimi</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div>
+    <div class="hero-eyebrow">
+      <span class="live-dot"></span>
+      Disponibile per nuovi progetti
+    </div>
+    <h1 class="hero-title">
+      Storie che<br>
+      <em>convertono.</em>
+    </h1>
+    <p class="hero-desc">
+      Sono Angela, 22 anni. Trasformo brand, aziende ed eventi in storie digitali che le persone vogliono davvero vedere. <strong>Da Venezia a Sky Italia</strong>, i risultati parlano.
+    </p>
+    <div class="hero-actions">
+      <a href="mailto:viralvenice@gmail.com" class="btn-primary">
+        Lavoriamo insieme ↗
+      </a>
+      <a href="https://INSERISCI-QUI-IL-TUO-LINK.com" target="_blank" class="btn-ghost">Scopri il mio portfolio</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="stat-glass">
+      <span class="stat-num">5+</span>
+      <span class="stat-label">Brand collaborazioni</span>
+    </div>
+    <div class="stat-glass">
+      <span class="stat-num">3</span>
+      <span class="stat-label">Piattaforme attive</span>
+    </div>
+    <div class="stat-glass">
+      <span class="stat-num">100%</span>
+      <span class="stat-label">Contenuti su misura</span>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker">
+    <div class="ticker-inner">
+      <span class="tick-item">Reels &amp; Video <span class="sep">✦</span></span>
+      <span class="tick-item">Brand Storytelling <span class="sep">✦</span></span>
+      <span class="tick-item">Social Strategy <span class="sep">✦</span></span>
+      <span class="tick-item">Event Coverage <span class="sep">✦</span></span>
+      <span class="tick-item">Reels &amp; Video <span class="sep">✦</span></span>
+      <span class="tick-item">Brand Storytelling <span class="sep">✦</span></span>
+      <span class="tick-item">Social Strategy <span class="sep">✦</span></span>
+      <span class="tick-item">Event Coverage <span class="sep">✦</span></span>
+    </div>
+    <div class="ticker-inner" aria-hidden="true">
+      <span class="tick-item">Reels &amp; Video <span class="sep">✦</span></span>
+      <span class="tick-item">Brand Storytelling <span class="sep">✦</span></span>
+      <span class="tick-item">Social Strategy <span class="sep">✦</span></span>
+      <span class="tick-item">Event Coverage <span class="sep">✦</span></span>
+      <span class="tick-item">Reels &amp; Video <span class="sep">✦</span></span>
+      <span class="tick-item">Brand Storytelling <span class="sep">✦</span></span>
+      <span class="tick-item">Social Strategy <span class="sep">✦</span></span>
+      <span class="tick-item">Event Coverage <span class="sep">✦</span></span>
+    </div>
+  </div>
+</div>
+
+<!-- CHI SONO -->
+<section id="about">
+  <div class="about-text reveal">
+    <div class="s-label">Chi sono</div>
+    <h2 class="s-title">Ciao, sono<br><em>Angela.</em></h2>
+    <p>Ho 22 anni e sono una Content Creator con esperienza reale su brand, eventi e piattaforme televisive. Non faccio solo contenuti, costruisco narrazioni che funzionano, che crescono e che convertono.</p>
+    <p>Sono anche la fondatrice di <em>ViralVenice</em>, il progetto con cui racconto Venezia al mondo digitale, con l'obiettivo di rendere la cultura e la storia di una città unica <strong>accessibile e viva</strong> per chi non si accontenta della cartolina.</p>
+  </div>
+
+  <div class="collab-wrap reveal" style="transition-delay:.15s">
+    <div class="collab-heading">Collaborazioni</div>
+    <div class="collab-list">
+      <div class="collab-item">
+        <div class="collab-dot"></div>
+        <span class="collab-name">Università Ca' Foscari Venezia</span>
+        <span class="collab-role">Content Creator</span>
+      </div>
+      <div class="collab-item">
+        <div class="collab-dot"></div>
+        <span class="collab-name">Italy Wedding Planner</span>
+        <span class="collab-role">Social Media Manager</span>
+      </div>
+      <div class="collab-item">
+        <div class="collab-dot"></div>
+        <span class="collab-name">Bravissima — Sky &amp; Canale Italia</span>
+        <span class="collab-role">Content Creator · Talent Show</span>
+      </div>
+      <div class="collab-item">
+        <div class="collab-dot"></div>
+        <span class="collab-name">SunRelax, Centro Estetico</span>
+        <span class="collab-role">UGC Creator</span>
+      </div>
+      <div class="collab-item">
+        <div class="collab-dot"></div>
+        <span class="collab-name">ViralVenice</span>
+        <span class="collab-role">Founder &amp; Creator</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVIZI -->
+<section id="services">
+  <div class="reveal">
+    <div class="s-label">Servizi</div>
+    <h2 class="s-title">Cosa posso<br><em>fare per te.</em></h2>
+    <p class="section-intro">Ogni progetto inizia dall'analisi del brand, del pubblico e degli obiettivi di business. Creo contenuti su misura che parlano con il tuo pubblico nel modo più efficace, con il formato giusto, nel momento giusto.</p>
+  </div>
+  <div class="services-grid reveal" style="transition-delay:.15s">
+    <div class="svc-card">
+      <span class="svc-num">01</span>
+      <h3 class="svc-title">Content Creation</h3>
+      <p class="svc-desc">Contenuti video e testuali ottimizzati per Instagram e TikTok: Reels, Stories e video verticali pensati per catturare l'attenzione della tua nicchia target fin dai primi secondi.</p>
+    </div>
+    <div class="svc-card">
+      <span class="svc-num">02</span>
+      <h3 class="svc-title">Strategia Social</h3>
+      <p class="svc-desc">Analisi del profilo, piano editoriale mensile, tone of voice e calendario contenuti. Strategia costruita su dati concreti e obiettivi di crescita misurabili.</p>
+    </div>
+    <div class="svc-card">
+      <span class="svc-num">03</span>
+      <h3 class="svc-title">Copertura Eventi</h3>
+      <p class="svc-desc">Racconto in tempo reale dell'evento sui social. Stories, Reels e post che amplificano la reach e trasformano ogni momento in contenuto di valore per il tuo brand.</p>
+    </div>
+    <div class="svc-card">
+      <span class="svc-num">04</span>
+      <h3 class="svc-title">Brand Storytelling</h3>
+      <p class="svc-desc">Costruzione o restyling dell'identità narrativa del brand: voce, stile visivo e posizionamento unico per differenziarti dalla concorrenza e restare nella mente del tuo pubblico.</p>
+    </div>
+    <div class="svc-card">
+      <span class="svc-num">05</span>
+      <h3 class="svc-title">Video &amp; Reels</h3>
+      <p class="svc-desc">Riprese, montaggio e post-produzione di short-form content verticale e orizzontale. Format costruiti su uno storytelling emotivo e narrativo capace di trattenere l'attenzione fino all'ultimo secondo.</p>
+    </div>
+    <div class="svc-card">
+      <span class="svc-num">06</span>
+      <h3 class="svc-title">UGC Creator</h3>
+      <p class="svc-desc">Produzione di contenuti UGC autentici per campagne advertising. Video nativi che sembrano organici, pensati per convertire senza sembrare pubblicità.</p>
+    </div>
+  </div>
+</section>
+
+<!-- COSA OFFRO -->
+<section id="offer">
+  <div class="offer-intro reveal">
+    <div class="s-label">Cosa offro</div>
+    <h2 class="s-title">Il valore<br><em>che porto.</em></h2>
+    <p>Collaborare con me significa avere qualcuno che capisce davvero gli obiettivi del brand, non solo i trend del momento. Lavoro con attenzione, cura e comunicazione costante, dalla prima call al contenuto pubblicato.</p>
+  </div>
+
+  <div class="offer-items reveal" style="transition-delay:.15s">
+    <div class="offer-row">
+      <div class="offer-icon">📦</div>
+      <div>
+        <h4>Contenuti pronti alla pubblicazione</h4>
+        <p>Dal brief al file finale: accompagno il processo con una consultazione preventiva per definire obiettivi e visione, e consegno contenuti pronti da pubblicare, senza revisioni infinite.</p>
+      </div>
+    </div>
+    <div class="offer-row">
+      <div class="offer-icon">🎤</div>
+      <div>
+        <h4>Presenza fisica sul campo</h4>
+        <p>Disponibile a eventi, shooting e coperture live. Essere sul posto fa la differenza: porta autenticità, immediatezza e contenuti che le persone vogliono davvero vedere.</p>
+      </div>
+    </div>
+    <div class="offer-row">
+      <div class="offer-icon">⚡</div>
+      <div>
+        <h4>Visione giovane e aggiornata</h4>
+        <p>Vivo i social ogni giorno, non solo come creator ma come utente. Questo mi permette di intercettare i format e le tendenze prima che diventino mainstream.</p>
+      </div>
+    </div>
+    <div class="offer-row">
+      <div class="offer-icon">🔄</div>
+      <div>
+        <h4>Adattabilità totale al brand</h4>
+        <p>Ogni brand ha una voce diversa. Imparo a conoscerla, la faccio mia e creo contenuti che sembrano davvero tuoi, senza perdere l'autenticità che rende un profilo credibile.</p>
+      </div>
+    </div>
+    <div class="offer-row">
+      <div class="offer-icon">📊</div>
+      <div>
+        <h4>Reportistica e ottimizzazione</h4>
+        <p>Monitoro le performance e porto dati chiari e leggibili. La strategia si aggiusta in corsa, perché ciò che funziona oggi potrebbe non funzionare domani.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RISULTATI -->
+<section id="results">
+  <div class="reveal">
+    <div class="s-label">Risultati</div>
+    <h2 class="s-title">I numeri<br><em>che contano.</em></h2>
+    <p class="section-intro">Ogni contenuto che produco è pensato per generare un impatto misurabile. Ecco le aree in cui ho portato valore concreto alle realtà con cui ho collaborato.</p>
+  </div>
+
+  <div class="results-grid reveal" style="transition-delay:.1s">
+    <div class="res-card">
+      <span class="res-metric">↑ Reach</span>
+      <span class="res-sublabel">Visibilità organica in crescita</span>
+      <p class="res-desc">Contenuti progettati per ampliare la reach organica e portare il brand davanti a nuove audience, senza dipendere esclusivamente dall'advertising a pagamento.</p>
+    </div>
+    <div class="res-card">
+      <span class="res-metric">↑ Engagement</span>
+      <span class="res-sublabel">Community attiva in crescita</span>
+      <p class="res-desc">Storie e format che non solo fanno fermare lo scroll, ma generano reazioni, commenti e condivisioni. Un pubblico che interagisce è un pubblico che si fida.</p>
+    </div>
+    <div class="res-card">
+      <span class="res-metric">↑ Action</span>
+      <span class="res-sublabel">Conversioni e interazioni reali</span>
+      <p class="res-desc">Contenuti costruiti con un obiettivo chiaro: trasformare l'attenzione in azioni concrete, click, messaggi, visite, prenotazioni e richieste di contatto.</p>
+    </div>
+  </div>
+
+  <!-- VIDEO SLOTS -->
+  <div class="video-row reveal" style="transition-delay:.2s">
+    <div class="vid-slot">
+      <span class="vid-icon">▶️</span>
+      <h4>Video — Da inserire</h4>
+      <p>Aggiungi qui il tuo miglior Reel o contenuto con i dati di performance</p>
+      <span class="vid-stat">Es. 120K visualizzazioni</span>
+    </div>
+    <div class="vid-slot">
+      <span class="vid-icon">▶️</span>
+      <h4>Video — Da inserire</h4>
+      <p>Aggiungi qui un contenuto che mostra la crescita del brand</p>
+      <span class="vid-stat">Es. +40% follower in 30 gg</span>
+    </div>
+    <div class="vid-slot">
+      <span class="vid-icon">▶️</span>
+      <h4>Video — Da inserire</h4>
+      <p>Aggiungi qui un contenuto legato a un evento o campagna</p>
+      <span class="vid-stat">Es. 5K interazioni</span>
+    </div>
+  </div>
+</section>
+
+<!-- OBIETTIVI -->
+<section id="goals">
+  <div class="goals-top reveal">
+    <div>
+      <div class="s-label">Obiettivi</div>
+      <h2 class="s-title">Cosa voglio<br>portare alla<br><em>tua azienda.</em></h2>
+    </div>
+    <p>Definire gli obiettivi è il primo passo di ogni collaborazione. Lavoro per raggiungere risultati concreti e misurabili, non impressioni generiche, ma impatto reale sul tuo brand e sul tuo business.</p>
+  </div>
+  <div class="goals-grid reveal" style="transition-delay:.15s">
+    <div class="goal-card">
+      <span class="goal-icon">📈</span>
+      <div class="goal-title">Crescita della presenza</div>
+      <p class="goal-text">Aumentare visibilità, follower e reach attraverso contenuti pubblicati con costanza, coerenza e strategia. Costruire una presenza digitale che duri nel tempo.</p>
+    </div>
+    <div class="goal-card">
+      <span class="goal-icon">🤝</span>
+      <div class="goal-title">Connessione autentica</div>
+      <p class="goal-text">Creare un rapporto genuino tra brand e pubblico. Non mi interessa solo far crescere i numeri, ma costruire una community che crede in ciò che rappresenti.</p>
+    </div>
+    <div class="goal-card">
+      <span class="goal-icon">🎯</span>
+      <div class="goal-title">Conversioni reali</div>
+      <p class="goal-text">Trasformare la visibilità in azioni concrete: richieste di informazioni, prenotazioni, acquisti. Ogni contenuto ha un obiettivo, e quell'obiettivo deve essere raggiunto.</p>
+    </div>
+    <div class="goal-card">
+      <span class="goal-icon">🏆</span>
+      <div class="goal-title">Differenziazione</div>
+      <p class="goal-text">Far emergere il tuo brand con un posizionamento unico e riconoscibile. Costruire un'identità digitale che si distingua dalla concorrenza e rimanga nella memoria del pubblico.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="cta-inner reveal">
+    <div class="cta-pill">Aperta a collaborazioni</div>
+    <h2 class="cta-title">
+      Costruiamo<br>qualcosa <em>insieme.</em>
+    </h2>
+    <p class="cta-sub">Se il tuo brand ha bisogno di una presenza digitale più forte, più autentica e più strategica, sono qui per costruirla con te. Raccontami il tuo progetto.</p>
+    <div class="cta-buttons">
+      <a href="mailto:viralvenice@gmail.com" class="btn-cta-main">Scrivimi ora ✦</a>
+      <a href="https://instagram.com/viralvenice" target="_blank" class="btn-cta-ghost">Instagram →</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Angela.</div>
+  <p class="footer-copy">© 2025 Angela — Content Creator</p>
+  <div class="footer-links">
+    <a href="https://instagram.com/viralvenice" target="_blank">Instagram</a>
+    <a href="https://tiktok.com" target="_blank">TikTok</a>
+  </div>
+</footer>
+
+<script>
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); }
+    });
+  }, { threshold: 0.08 });
+
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
