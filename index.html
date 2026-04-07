@@ -71,10 +71,30 @@ nav {
   border-bottom: 1px solid rgba(183,37,82,0.12);
 }
 
+.nav-brand {
+  display: flex; align-items: center; gap: 1.2rem;
+}
+
 .nav-logo {
   font-family: 'Cormorant Garamond', serif;
   font-size: 1.5rem; font-style: italic; font-weight: 600;
   color: var(--wine); letter-spacing: .02em;
+  text-decoration: none;
+}
+
+.nav-portfolio-link {
+  font-size: .72rem; letter-spacing: .08em;
+  color: var(--rose); text-decoration: none; font-weight: 500;
+  background: rgba(183,37,82,0.07);
+  border: 1px solid rgba(183,37,82,0.2);
+  padding: .35rem .85rem; border-radius: 100px;
+  transition: all .22s;
+  white-space: nowrap;
+}
+.nav-portfolio-link:hover {
+  background: rgba(183,37,82,0.14);
+  border-color: rgba(183,37,82,0.4);
+  transform: translateY(-1px);
 }
 
 .nav-links { display: flex; gap: 2.5rem; list-style: none; }
@@ -390,25 +410,120 @@ section { padding: 7rem 4rem; position: relative; z-index: 1; }
 }
 .res-desc { font-size: .85rem; color: rgba(255,255,255,0.6); line-height: 1.7; }
 
-/* VIDEO PLACEHOLDERS */
+/* ── VIDEO ROW — Instagram Reels ── */
 .video-row {
-  display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
 }
-.vid-slot {
-  background: rgba(255,255,255,0.1);
-  backdrop-filter: blur(16px);
-  border: 1.5px dashed rgba(255,255,255,0.3);
-  border-radius: 16px; padding: 2rem; text-align: center;
-  transition: border-color .25s;
+
+/* Card contenitore del reel */
+.vid-card {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  background: rgba(0,0,0,0.3);
+  aspect-ratio: 9/16;
+  max-height: 480px;
+  transition: transform .3s, box-shadow .3s;
+  text-decoration: none;
+  display: block;
 }
-.vid-slot:hover { border-color: rgba(255,255,255,0.6); }
-.vid-icon { font-size: 2rem; margin-bottom: .8rem; display: block; }
-.vid-slot h4 { font-size: .85rem; color: white; font-weight: 500; margin-bottom: .4rem; }
-.vid-slot p { font-size: .78rem; color: rgba(255,198,191,0.6); }
-.vid-slot .vid-stat {
-  display: inline-block; margin-top: .9rem;
-  background: rgba(255,255,255,0.15); padding: .3rem .8rem; border-radius: 100px;
-  font-size: .72rem; color: white; font-weight: 600; letter-spacing: .05em;
+.vid-card:hover { transform: translateY(-6px); box-shadow: 0 24px 60px rgba(0,0,0,0.4); }
+
+/* Thumbnail via oEmbed open graph */
+.vid-thumb {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .4s;
+}
+.vid-card:hover .vid-thumb { transform: scale(1.04); }
+
+/* Overlay scuro permanente in basso */
+.vid-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.15) 45%, transparent 75%);
+  pointer-events: none;
+}
+
+/* Icona play centrale */
+.vid-play-icon {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 54px; height: 54px; border-radius: 50%;
+  background: rgba(255,255,255,0.22);
+  backdrop-filter: blur(8px);
+  border: 1.5px solid rgba(255,255,255,0.5);
+  display: flex; align-items: center; justify-content: center;
+  transition: background .25s, transform .25s;
+  pointer-events: none;
+}
+.vid-play-icon svg { width: 20px; height: 20px; fill: white; margin-left: 3px; }
+.vid-card:hover .vid-play-icon {
+  background: rgba(183,37,82,0.85);
+  transform: translate(-50%, -50%) scale(1.08);
+}
+
+/* Etichetta testo in basso */
+.vid-label {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 1.2rem 1.1rem .9rem;
+  pointer-events: none;
+}
+.vid-label-text {
+  font-size: .78rem; font-weight: 600; color: white;
+  letter-spacing: .03em; line-height: 1.3;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+  display: flex; align-items: center; gap: .5rem;
+}
+.vid-ig-icon {
+  width: 16px; height: 16px; flex-shrink: 0; opacity: .9;
+}
+
+/* ── Freccia "Premi qui" solo sul primo video ── */
+.vid-first-hint {
+  position: absolute; top: 1rem; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: .3rem;
+  pointer-events: none;
+  animation: hintBounce 1.8s ease-in-out infinite;
+}
+.vid-first-hint span {
+  font-size: .68rem; letter-spacing: .1em; text-transform: uppercase;
+  color: white; font-weight: 600; white-space: nowrap;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.6);
+  background: rgba(183,37,82,0.75);
+  padding: .3rem .7rem; border-radius: 100px;
+  backdrop-filter: blur(6px);
+}
+.vid-first-hint svg {
+  width: 18px; height: 18px; fill: white;
+  filter: drop-shadow(0 1px 4px rgba(0,0,0,0.5));
+}
+@keyframes hintBounce {
+  0%,100% { transform: translateX(-50%) translateY(0); }
+  50%      { transform: translateX(-50%) translateY(5px); }
+}
+
+/* Scroll orizzontale su mobile */
+@media (max-width: 920px) {
+  .video-row {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 1rem;
+    padding-bottom: .5rem;
+    -webkit-overflow-scrolling: touch;
+  }
+  .video-row::-webkit-scrollbar { height: 4px; }
+  .video-row::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); border-radius: 2px; }
+  .video-row::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 2px; }
+  .vid-card {
+    flex: 0 0 72vw;
+    max-height: 420px;
+    scroll-snap-align: start;
+  }
 }
 
 /* ── OBIETTIVI ── */
@@ -526,11 +641,13 @@ footer {
 @media (max-width: 920px) {
   nav { padding: 1rem 1.5rem; }
   .nav-links { display: none; }
+  .nav-portfolio-link { font-size: .65rem; padding: .3rem .65rem; }
   section { padding: 5rem 1.5rem; }
   #hero { grid-template-columns: 1fr; padding: 7rem 1.5rem 4rem; }
   .hero-right { display: none; }
   #about, #offer, .goals-top { grid-template-columns: 1fr; gap: 3rem; }
-  .services-grid, .results-grid, .video-row, .goals-grid { grid-template-columns: 1fr; }
+  .services-grid, .results-grid, .goals-grid { grid-template-columns: 1fr; }
+  footer { padding: 2rem 1.5rem; flex-direction: column; gap: 1rem; text-align: center; }
 }
 </style>
 </head>
@@ -545,7 +662,12 @@ footer {
 
 <!-- NAV -->
 <nav>
-  <div class="nav-logo">Angela.</div>
+  <div class="nav-brand">
+    <span class="nav-logo">Angela.</span>
+    <a href="https://portfolio-alexe.my.canva.site/" target="_blank" rel="noopener" class="nav-portfolio-link">
+      Scopri il mio portfolio ↗
+    </a>
+  </div>
   <ul class="nav-links">
     <li><a href="#about">Chi sono</a></li>
     <li><a href="#services">Servizi</a></li>
@@ -553,7 +675,7 @@ footer {
     <li><a href="#goals">Obiettivi</a></li>
     <li><a href="#cta">Contatti</a></li>
   </ul>
-  <a href="mailto:viralvenice@gmail.com" class="nav-cta">Scrivimi</a>
+  <a href="https://mail.google.com/mail/?view=cm&to=viralvenice@gmail.com" target="_blank" rel="noopener" class="nav-cta">Scrivimi</a>
 </nav>
 
 <!-- HERO -->
@@ -571,10 +693,10 @@ footer {
       Sono Angela, 22 anni. Trasformo brand, aziende ed eventi in storie digitali che le persone vogliono davvero vedere. <strong>Da Venezia a Sky Italia</strong>, i risultati parlano.
     </p>
     <div class="hero-actions">
-      <a href="mailto:viralvenice@gmail.com" class="btn-primary">
+      <a href="https://mail.google.com/mail/?view=cm&to=viralvenice@gmail.com" target="_blank" rel="noopener" class="btn-primary">
         Lavoriamo insieme ↗
       </a>
-      <a href="https://INSERISCI-QUI-IL-TUO-LINK.com" target="_blank" class="btn-ghost">Scopri il mio portfolio</a>
+      <a href="https://portfolio-alexe.my.canva.site/" target="_blank" rel="noopener" class="btn-ghost">Scopri il mio portfolio</a>
     </div>
   </div>
   <div class="hero-right">
@@ -774,27 +896,90 @@ footer {
     </div>
   </div>
 
-  <!-- VIDEO SLOTS -->
+  <!-- ── 3 REEL INSTAGRAM AFFIANCATI ── -->
   <div class="video-row reveal" style="transition-delay:.2s">
-    <div class="vid-slot">
-      <span class="vid-icon">▶️</span>
-      <h4>Video — Da inserire</h4>
-      <p>Aggiungi qui il tuo miglior Reel o contenuto con i dati di performance</p>
-      <span class="vid-stat">Es. 120K visualizzazioni</span>
-    </div>
-    <div class="vid-slot">
-      <span class="vid-icon">▶️</span>
-      <h4>Video — Da inserire</h4>
-      <p>Aggiungi qui un contenuto che mostra la crescita del brand</p>
-      <span class="vid-stat">Es. +40% follower in 30 gg</span>
-    </div>
-    <div class="vid-slot">
-      <span class="vid-icon">▶️</span>
-      <h4>Video — Da inserire</h4>
-      <p>Aggiungi qui un contenuto legato a un evento o campagna</p>
-      <span class="vid-stat">Es. 5K interazioni</span>
-    </div>
-  </div>
+
+    <!-- VIDEO 1 — Ca' Foscari (con hint "Premi qui") -->
+    <a class="vid-card"
+       href="https://www.instagram.com/reel/DH5Um5yt8Og/?igsh=dmEwanQ3ZHQxdTd6"
+       target="_blank" rel="noopener"
+       aria-label="Guarda il Reel su Instagram: Angela x Università Ca' Foscari Venezia">
+      <!-- hint solo sul primo -->
+      <div class="vid-first-hint">
+        <span>Premi qui per vedere il video</span>
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 4v12m0 0l-4-4m4 4l4-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+      </div>
+      <img
+        class="vid-thumb"
+        src="https://wsrv.nl/?url=https://www.instagram.com/p/DH5Um5yt8Og/media/?size=l&w=480&output=jpg&q=85"
+        alt="Reel Ca' Foscari"
+        loading="lazy"
+        onerror="this.src='https://placehold.co/480x854/7F1330/FFC6BF?text=▶+Ca%27+Foscari'">
+      <div class="vid-overlay"></div>
+      <div class="vid-play-icon">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </div>
+      <div class="vid-label">
+        <div class="vid-label-text">
+          <svg class="vid-ig-icon" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+          </svg>
+          Angela x Università Ca' Foscari Venezia
+        </div>
+      </div>
+    </a>
+
+    <!-- VIDEO 2 — Bravissima Talent Show -->
+    <a class="vid-card"
+       href="https://www.instagram.com/reel/DINtFgntD1H/?igsh=MW5idTB2aml6ZjQ3Ng=="
+       target="_blank" rel="noopener"
+       aria-label="Guarda il Reel su Instagram: Angela x Bravissima Talent Show">
+      <img
+        class="vid-thumb"
+        src="https://wsrv.nl/?url=https://www.instagram.com/p/DINtFgntD1H/media/?size=l&w=480&output=jpg&q=85"
+        alt="Reel Bravissima Talent Show"
+        loading="lazy"
+        onerror="this.src='https://placehold.co/480x854/7F1330/FFC6BF?text=▶+Bravissima'">
+      <div class="vid-overlay"></div>
+      <div class="vid-play-icon">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </div>
+      <div class="vid-label">
+        <div class="vid-label-text">
+          <svg class="vid-ig-icon" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+          </svg>
+          Angela x Bravissima Talent Show
+        </div>
+      </div>
+    </a>
+
+    <!-- VIDEO 3 — Viral Venice -->
+    <a class="vid-card"
+       href="https://www.instagram.com/reel/DUqJmxNDEHx/?igsh=bDRqb3I0Mm12cXV5"
+       target="_blank" rel="noopener"
+       aria-label="Guarda il Reel su Instagram: Viral Venice">
+      <img
+        class="vid-thumb"
+        src="https://wsrv.nl/?url=https://www.instagram.com/p/DUqJmxNDEHx/media/?size=l&w=480&output=jpg&q=85"
+        alt="Reel Viral Venice"
+        loading="lazy"
+        onerror="this.src='https://placehold.co/480x854/003744/FFC6BF?text=▶+Viral+Venice'">
+      <div class="vid-overlay"></div>
+      <div class="vid-play-icon">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </div>
+      <div class="vid-label">
+        <div class="vid-label-text">
+          <svg class="vid-ig-icon" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+          </svg>
+          Viral Venice
+        </div>
+      </div>
+    </a>
+
+  </div><!-- /video-row -->
 </section>
 
 <!-- OBIETTIVI -->
@@ -839,8 +1024,8 @@ footer {
     </h2>
     <p class="cta-sub">Se il tuo brand ha bisogno di una presenza digitale più forte, più autentica e più strategica, sono qui per costruirla con te. Raccontami il tuo progetto.</p>
     <div class="cta-buttons">
-      <a href="mailto:viralvenice@gmail.com" class="btn-cta-main">Scrivimi ora ✦</a>
-      <a href="https://instagram.com/viralvenice" target="_blank" class="btn-cta-ghost">Instagram →</a>
+      <a href="https://mail.google.com/mail/?view=cm&to=viralvenice@gmail.com" target="_blank" rel="noopener" class="btn-cta-main">Scrivimi ora ✦</a>
+      <a href="https://www.instagram.com/alexe.it?igsh=MWV3ajh0cHhvYXRuZQ%3D%3D&utm_source=qr" target="_blank" rel="noopener" class="btn-cta-ghost">Instagram →</a>
     </div>
   </div>
 </section>
@@ -848,20 +1033,18 @@ footer {
 <!-- FOOTER -->
 <footer>
   <div class="footer-logo">Angela.</div>
-  <p class="footer-copy">© 2025 Angela — Content Creator</p>
+  <p class="footer-copy">Angela Alexe — Content Creator</p>
   <div class="footer-links">
-    <a href="https://instagram.com/viralvenice" target="_blank">Instagram</a>
-    <a href="https://tiktok.com" target="_blank">TikTok</a>
+    <a href="https://www.instagram.com/alexe.it?igsh=MWV3ajh0cHhvYXRuZQ%3D%3D&utm_source=qr" target="_blank" rel="noopener">Instagram</a>
+    <a href="https://www.tiktok.com/@viralvenice" target="_blank" rel="noopener">TikTok</a>
   </div>
 </footer>
 
 <script>
+  // ── Reveal on scroll ──
   const obs = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); }
-    });
-  }, { threshold: 0.08 });
-
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); } });
+  }, { threshold: 0.12 });
   document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 </script>
 </body>
