@@ -1,1052 +1,336 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it" class="no-js">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Angela — Content Creator</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  --wine:    #7F1330;
-  --blush:   #FFC6BF;
-  --teal:    #003744;
-  --rose:    #B72552;
-  --cream:   #FFF5F3;
-  --yellow:  #FFEE93;
-  --coral:   #FE8982;
-  --white:   #ffffff;
-  --muted:   rgba(127,19,48,0.45);
-}
-
-html { scroll-behavior: smooth; }
-
-body {
-  background: var(--cream);
-  color: var(--wine);
-  font-family: 'Outfit', sans-serif;
-  font-weight: 400;
-  overflow-x: hidden;
-}
-
-/* ── GRAIN OVERLAY ── */
-body::before {
-  content: '';
-  position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
-  background-size: 200px;
-  opacity: .5;
-}
-
-/* ── BACKGROUND BLOBS ── */
-.blob-bg {
-  position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
-}
-.blob {
-  position: absolute; border-radius: 50%;
-  filter: blur(80px); opacity: .18;
-}
-.blob-1 { width: 600px; height: 600px; background: var(--rose);   top: -200px; right: -150px; }
-.blob-2 { width: 400px; height: 400px; background: var(--teal);   bottom: 10%;  left: -100px; }
-.blob-3 { width: 300px; height: 300px; background: var(--coral);  top: 40%;    right: 10%; }
-
-/* ── GLASS MIXIN UTILITY ── */
-.glass {
-  background: rgba(255,245,243,0.55);
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
-  border: 1px solid rgba(255,255,255,0.65);
-  box-shadow: 0 8px 32px rgba(127,19,48,0.08), inset 0 1px 0 rgba(255,255,255,0.7);
-}
-
-/* ── NAV ── */
-nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 1.2rem 4rem;
-  background: rgba(255,245,243,0.72);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border-bottom: 1px solid rgba(183,37,82,0.12);
-}
-
-.nav-brand {
-  display: flex; align-items: center; gap: 1.2rem;
-}
-
-.nav-logo {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.5rem; font-style: italic; font-weight: 600;
-  color: var(--wine); letter-spacing: .02em;
-  text-decoration: none;
-}
-
-.nav-portfolio-link {
-  font-size: .72rem; letter-spacing: .08em;
-  color: var(--rose); text-decoration: none; font-weight: 500;
-  background: rgba(183,37,82,0.07);
-  border: 1px solid rgba(183,37,82,0.2);
-  padding: .35rem .85rem; border-radius: 100px;
-  transition: all .22s;
-  white-space: nowrap;
-}
-.nav-portfolio-link:hover {
-  background: rgba(183,37,82,0.14);
-  border-color: rgba(183,37,82,0.4);
-  transform: translateY(-1px);
-}
-
-.nav-links { display: flex; gap: 2.5rem; list-style: none; }
-.nav-links a {
-  color: var(--wine); text-decoration: none;
-  font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 500;
-  opacity: .6; transition: opacity .25s, color .25s;
-}
-.nav-links a:hover { opacity: 1; color: var(--rose); }
-
-.nav-cta {
-  background: var(--rose); color: white;
-  padding: .55rem 1.5rem; font-size: .78rem;
-  letter-spacing: .1em; text-transform: uppercase; font-weight: 500;
-  text-decoration: none; border-radius: 100px;
-  border: 1px solid rgba(255,255,255,.25);
-  box-shadow: 0 4px 16px rgba(183,37,82,.3);
-  transition: transform .2s, box-shadow .2s;
-}
-.nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(183,37,82,.4); }
-
-/* ── HERO ── */
-#hero {
-  min-height: 100vh;
-  display: grid; grid-template-columns: 1fr 1fr;
-  align-items: center; gap: 5rem;
-  padding: 9rem 4rem 5rem;
-  position: relative; z-index: 1;
-}
-
-.hero-eyebrow {
-  display: inline-flex; align-items: center; gap: .7rem;
-  background: rgba(255,255,255,0.6);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(183,37,82,0.2);
-  padding: .45rem 1.1rem; border-radius: 100px;
-  font-size: .75rem; letter-spacing: .12em; text-transform: uppercase;
-  color: var(--rose); font-weight: 600;
-  margin-bottom: 2rem;
-  opacity: 0; animation: fadeUp .7s .1s forwards;
-}
-.live-dot {
-  width: 7px; height: 7px; border-radius: 50%; background: var(--rose);
-  animation: livePulse 2s infinite;
-}
-@keyframes livePulse {
-  0%,100% { box-shadow: 0 0 0 0 rgba(183,37,82,.4); }
-  50% { box-shadow: 0 0 0 5px rgba(183,37,82,0); }
-}
-
-.hero-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(4rem, 6.5vw, 7.5rem);
-  line-height: .95; font-weight: 700;
-  letter-spacing: -.02em; margin-bottom: 1.8rem;
-  opacity: 0; animation: fadeUp .7s .25s forwards;
-}
-.hero-title em { font-style: italic; color: var(--rose); display: block; }
-
-.hero-desc {
-  font-size: 1.05rem; line-height: 1.85;
-  color: rgba(0,55,68,0.75); max-width: 500px;
-  margin-bottom: 2.8rem;
-  opacity: 0; animation: fadeUp .7s .4s forwards;
-}
-.hero-desc strong { color: var(--teal); font-weight: 600; }
-
-.hero-actions {
-  display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;
-  opacity: 0; animation: fadeUp .7s .55s forwards;
-}
-
-.btn-primary {
-  display: inline-flex; align-items: center; gap: .6rem;
-  background: var(--rose); color: white;
-  padding: .95rem 2.2rem; border-radius: 100px;
-  font-size: .82rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 600;
-  text-decoration: none;
-  border: 1px solid rgba(255,255,255,.2);
-  box-shadow: 0 6px 24px rgba(183,37,82,.35), inset 0 1px 0 rgba(255,255,255,.15);
-  transition: all .25s;
-}
-.btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(183,37,82,.45); background: var(--wine); }
-
-.btn-ghost {
-  color: var(--wine); text-decoration: none;
-  font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 500;
-  opacity: .6; transition: opacity .25s;
-  padding: .95rem 0;
-}
-.btn-ghost:hover { opacity: 1; }
-
-/* HERO RIGHT — Stats Glass Cards */
-.hero-right {
-  display: flex; flex-direction: column; gap: 1rem; align-items: stretch;
-  opacity: 0; animation: fadeRight .7s .4s forwards;
-}
-
-.stat-glass {
-  padding: 1.8rem 2rem;
-  background: rgba(255,255,255,0.5);
-  backdrop-filter: blur(20px) saturate(160%);
-  border: 1px solid rgba(255,255,255,0.7);
-  box-shadow: 0 8px 32px rgba(127,19,48,0.06), inset 0 1px 0 rgba(255,255,255,0.8);
-  border-radius: 20px;
-  transition: transform .25s, box-shadow .25s;
-}
-.stat-glass:hover { transform: translateX(6px); box-shadow: 0 12px 40px rgba(127,19,48,0.1); }
-
-.stat-num {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 3rem; font-weight: 700; color: var(--rose);
-  line-height: 1; display: block; margin-bottom: .25rem;
-}
-.stat-label {
-  font-size: .75rem; letter-spacing: .12em; text-transform: uppercase;
-  color: rgba(0,55,68,0.55); display: block;
-}
-
-/* ── TICKER ── */
-.ticker-wrap {
-  position: relative; z-index: 1;
-  overflow: hidden; padding: 1rem 0;
-  background: var(--teal);
-  border-top: 1px solid rgba(255,255,255,.1);
-  border-bottom: 1px solid rgba(255,255,255,.1);
-}
-.ticker {
-  display: flex; gap: 0; white-space: nowrap;
-  animation: tickerMove 18s linear infinite;
-}
-.ticker-inner { display: flex; gap: 0; }
-.tick-item {
-  display: inline-flex; align-items: center; gap: 1.5rem;
-  padding: 0 2rem;
-  font-size: .75rem; letter-spacing: .18em; text-transform: uppercase;
-  font-weight: 500; color: rgba(255,245,243,0.75);
-}
-.tick-item .sep { color: var(--coral); font-size: .5rem; }
-@keyframes tickerMove {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
-}
-
-/* ── SECTION BASE ── */
-section { padding: 7rem 4rem; position: relative; z-index: 1; }
-
-.s-label {
-  font-size: .7rem; letter-spacing: .22em; text-transform: uppercase;
-  color: var(--rose); font-weight: 600; margin-bottom: .9rem; display: flex; align-items: center; gap: .7rem;
-}
-.s-label::before { content: ''; width: 20px; height: 1.5px; background: var(--rose); display: block; }
-
-.s-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(2.4rem, 4vw, 4.2rem);
-  line-height: 1.0; font-weight: 700; letter-spacing: -.02em;
-  margin-bottom: 1.2rem;
-}
-.s-title em { font-style: italic; color: var(--rose); }
-
-/* ── ABOUT ── */
-#about {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 7rem; align-items: start;
-  border-top: 1px solid rgba(183,37,82,0.12);
-}
-
-.about-text .s-title { margin-bottom: 1.5rem; }
-.about-text p {
-  color: rgba(0,55,68,0.7); line-height: 1.95; font-size: .98rem; margin-bottom: 1.1rem;
-}
-.about-text strong { color: var(--teal); font-weight: 600; }
-.about-text em { font-style: italic; color: var(--rose); }
-
-.collab-wrap { padding-top: .5rem; }
-.collab-heading {
-  font-size: .68rem; letter-spacing: .2em; text-transform: uppercase;
-  color: var(--rose); margin-bottom: 1rem; font-weight: 600;
-  display: flex; align-items: center; gap: .6rem;
-}
-.collab-heading::before { content: ''; width: 16px; height: 1px; background: var(--rose); }
-
-.collab-list { display: flex; flex-direction: column; gap: .6rem; }
-
-.collab-item {
-  display: flex; align-items: center; gap: 1rem;
-  padding: 1rem 1.3rem;
-  background: rgba(255,255,255,0.5);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,0.7);
-  box-shadow: 0 4px 16px rgba(127,19,48,0.05), inset 0 1px 0 rgba(255,255,255,.8);
-  border-radius: 14px;
-  transition: all .25s;
-}
-.collab-item:hover {
-  border-color: rgba(183,37,82,0.25);
-  box-shadow: 0 8px 24px rgba(183,37,82,0.1);
-  transform: translateX(4px);
-}
-.collab-dot { width: 5px; height: 5px; background: var(--rose); border-radius: 50%; flex-shrink: 0; }
-.collab-name { font-size: .87rem; font-weight: 500; color: var(--wine); flex: 1; }
-.collab-role { font-size: .72rem; color: rgba(0,55,68,0.5); letter-spacing: .04em; white-space: nowrap; }
-
-/* ── SERVIZI ── */
-#services {
-  background: var(--teal);
-  border-top: none;
-}
-#services .s-label { color: var(--coral); }
-#services .s-label::before { background: var(--coral); }
-#services .s-title { color: white; }
-#services .s-title em { color: var(--coral); }
-#services .section-intro {
-  color: rgba(255,245,243,0.6); line-height: 1.85; font-size: .95rem;
-  max-width: 560px; margin-bottom: 3.5rem;
-}
-
-.services-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 1px; background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 24px; overflow: hidden;
-}
-
-.svc-card {
-  background: rgba(0,55,68,0.6);
-  backdrop-filter: blur(20px);
-  padding: 2.5rem 2rem;
-  position: relative; overflow: hidden;
-  transition: background .3s;
-}
-.svc-card::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0;
-  height: 2px; background: linear-gradient(90deg, transparent, var(--coral), transparent);
-  opacity: 0; transition: opacity .3s;
-}
-.svc-card:hover { background: rgba(0,55,68,0.85); }
-.svc-card:hover::before { opacity: 1; }
-
-.svc-num {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 2.2rem; font-weight: 700;
-  color: rgba(254,137,130,0.2); display: block; margin-bottom: .8rem; line-height: 1;
-}
-.svc-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.4rem; font-weight: 600; color: white;
-  margin-bottom: .8rem; letter-spacing: -.01em;
-}
-.svc-desc { font-size: .85rem; color: rgba(255,245,243,0.5); line-height: 1.75; }
-
-/* ── OFFRO ── */
-#offer {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 7rem;
-  border-top: 1px solid rgba(183,37,82,0.1);
-}
-
-.offer-intro p {
-  color: rgba(0,55,68,0.7); line-height: 1.9; font-size: .97rem; margin-top: 1rem;
-}
-
-.offer-items { display: flex; flex-direction: column; gap: 0; margin-top: 1rem; }
-.offer-row {
-  display: grid; grid-template-columns: 44px 1fr; gap: 1.2rem;
-  padding: 1.4rem 0; border-bottom: 1px solid rgba(183,37,82,0.08);
-  transition: background .2s; border-radius: 8px; margin: 0 -.5rem; padding: 1.4rem .5rem;
-}
-.offer-row:hover { background: rgba(183,37,82,0.04); }
-
-.offer-icon {
-  width: 40px; height: 40px; border-radius: 10px;
-  background: rgba(255,255,255,0.7); border: 1px solid rgba(183,37,82,0.15);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1rem; flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(127,19,48,.06);
-}
-.offer-row h4 { font-size: .92rem; font-weight: 600; color: var(--wine); margin-bottom: .3rem; letter-spacing: -.01em; }
-.offer-row p  { font-size: .82rem; color: rgba(0,55,68,0.6); line-height: 1.65; }
-
-/* ── RISULTATI ── */
-#results {
-  background: linear-gradient(135deg, var(--wine) 0%, var(--rose) 100%);
-  border-top: none;
-}
-#results .s-label { color: var(--blush); }
-#results .s-label::before { background: var(--blush); }
-#results .s-title { color: white; }
-#results .s-title em { color: var(--yellow); }
-#results .section-intro { color: rgba(255,198,191,0.7); font-size: .95rem; line-height: 1.8; max-width: 500px; margin-bottom: 3.5rem; }
-
-.results-grid {
-  display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; margin-bottom: 4rem;
-}
-
-.res-card {
-  background: rgba(255,255,255,0.12);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 20px; padding: 2.5rem 2rem;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.15);
-  transition: transform .25s, background .25s;
-}
-.res-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.18); }
-
-.res-metric {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 3.2rem; font-weight: 700; color: white;
-  line-height: 1; display: block; margin-bottom: .3rem;
-}
-.res-sublabel {
-  font-size: .75rem; letter-spacing: .12em; text-transform: uppercase;
-  color: rgba(255,198,191,0.7); display: block; margin-bottom: 1.5rem;
-}
-.res-desc { font-size: .85rem; color: rgba(255,255,255,0.6); line-height: 1.7; }
-
-/* ── VIDEO ROW — Instagram Reels ── */
-.video-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-}
-
-/* Card contenitore del reel */
-.vid-card {
-  position: relative;
-  border-radius: 20px;
-  overflow: hidden;
-  cursor: pointer;
-  background: rgba(0,0,0,0.3);
-  aspect-ratio: 9/16;
-  max-height: 480px;
-  transition: transform .3s, box-shadow .3s;
-  text-decoration: none;
-  display: block;
-}
-.vid-card:hover { transform: translateY(-6px); box-shadow: 0 24px 60px rgba(0,0,0,0.4); }
-
-/* Thumbnail via oEmbed open graph */
-.vid-thumb {
-  width: 100%; height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: transform .4s;
-}
-.vid-card:hover .vid-thumb { transform: scale(1.04); }
-
-/* Overlay scuro permanente in basso */
-.vid-overlay {
-  position: absolute; inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.15) 45%, transparent 75%);
-  pointer-events: none;
-}
-
-/* Icona play centrale */
-.vid-play-icon {
-  position: absolute; top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  width: 54px; height: 54px; border-radius: 50%;
-  background: rgba(255,255,255,0.22);
-  backdrop-filter: blur(8px);
-  border: 1.5px solid rgba(255,255,255,0.5);
-  display: flex; align-items: center; justify-content: center;
-  transition: background .25s, transform .25s;
-  pointer-events: none;
-}
-.vid-play-icon svg { width: 20px; height: 20px; fill: white; margin-left: 3px; }
-.vid-card:hover .vid-play-icon {
-  background: rgba(183,37,82,0.85);
-  transform: translate(-50%, -50%) scale(1.08);
-}
-
-/* Etichetta testo in basso */
-.vid-label {
-  position: absolute; bottom: 0; left: 0; right: 0;
-  padding: 1.2rem 1.1rem .9rem;
-  pointer-events: none;
-}
-.vid-label-text {
-  font-size: .78rem; font-weight: 600; color: white;
-  letter-spacing: .03em; line-height: 1.3;
-  text-shadow: 0 1px 6px rgba(0,0,0,0.5);
-  display: flex; align-items: center; gap: .5rem;
-}
-.vid-ig-icon {
-  width: 16px; height: 16px; flex-shrink: 0; opacity: .9;
-}
-
-/* ── Freccia "Premi qui" solo sul primo video ── */
-.vid-first-hint {
-  position: absolute; top: 1rem; left: 50%; transform: translateX(-50%);
-  display: flex; flex-direction: column; align-items: center; gap: .3rem;
-  pointer-events: none;
-  animation: hintBounce 1.8s ease-in-out infinite;
-}
-.vid-first-hint span {
-  font-size: .68rem; letter-spacing: .1em; text-transform: uppercase;
-  color: white; font-weight: 600; white-space: nowrap;
-  text-shadow: 0 1px 8px rgba(0,0,0,0.6);
-  background: rgba(183,37,82,0.75);
-  padding: .3rem .7rem; border-radius: 100px;
-  backdrop-filter: blur(6px);
-}
-.vid-first-hint svg {
-  width: 18px; height: 18px; fill: white;
-  filter: drop-shadow(0 1px 4px rgba(0,0,0,0.5));
-}
-@keyframes hintBounce {
-  0%,100% { transform: translateX(-50%) translateY(0); }
-  50%      { transform: translateX(-50%) translateY(5px); }
-}
-
-/* Scroll orizzontale su mobile */
-@media (max-width: 920px) {
-  .video-row {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    gap: 1rem;
-    padding-bottom: .5rem;
-    -webkit-overflow-scrolling: touch;
-  }
-  .video-row::-webkit-scrollbar { height: 4px; }
-  .video-row::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); border-radius: 2px; }
-  .video-row::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 2px; }
-  .vid-card {
-    flex: 0 0 72vw;
-    max-height: 420px;
-    scroll-snap-align: start;
-  }
-}
-
-/* ── OBIETTIVI ── */
-#goals { border-top: 1px solid rgba(183,37,82,0.1); }
-
-.goals-top { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start; margin-bottom: 3.5rem; }
-.goals-top p { color: rgba(0,55,68,0.7); line-height: 1.9; font-size: .97rem; padding-top: 1rem; }
-
-.goals-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1.2rem; }
-
-.goal-card {
-  background: rgba(255,255,255,0.55);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.75);
-  box-shadow: 0 8px 32px rgba(127,19,48,0.06), inset 0 1px 0 rgba(255,255,255,.9);
-  border-radius: 20px; padding: 2rem 1.6rem;
-  transition: transform .25s, box-shadow .25s;
-}
-.goal-card:hover { transform: translateY(-5px); box-shadow: 0 16px 48px rgba(127,19,48,0.12); }
-
-.goal-icon { font-size: 1.6rem; margin-bottom: 1rem; display: block; }
-.goal-title { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-weight: 700; color: var(--wine); margin-bottom: .4rem; }
-.goal-text { font-size: .82rem; color: rgba(0,55,68,0.6); line-height: 1.65; }
-
-/* ── CTA ── */
-#cta {
-  background: var(--teal); text-align: center; padding: 8rem 4rem;
-  position: relative; overflow: hidden;
-}
-#cta::before {
-  content: '';
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-  width: 600px; height: 600px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(183,37,82,0.2) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-.cta-inner { position: relative; z-index: 1; }
-.cta-pill {
-  display: inline-flex; align-items: center; gap: .6rem;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 100px; padding: .45rem 1.2rem;
-  font-size: .72rem; letter-spacing: .15em; text-transform: uppercase;
-  color: var(--blush); font-weight: 600; margin-bottom: 2rem;
-}
-
-.cta-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(2.8rem, 5.5vw, 5.5rem);
-  font-weight: 700; line-height: .95; letter-spacing: -.03em;
-  color: white; margin-bottom: 1.5rem;
-}
-.cta-title em { font-style: italic; color: var(--coral); }
-
-.cta-sub {
-  font-size: 1rem; color: rgba(255,198,191,0.65);
-  max-width: 440px; margin: 0 auto 3rem; line-height: 1.8;
-}
-
-.cta-buttons { display: flex; gap: 1.2rem; justify-content: center; flex-wrap: wrap; }
-
-.btn-cta-main {
-  display: inline-flex; align-items: center; gap: .7rem;
-  background: white; color: var(--wine);
-  padding: 1rem 2.5rem; border-radius: 100px;
-  font-size: .85rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 600;
-  text-decoration: none;
-  box-shadow: 0 8px 32px rgba(0,0,0,.2);
-  transition: all .25s;
-}
-.btn-cta-main:hover { transform: translateY(-3px); box-shadow: 0 16px 48px rgba(0,0,0,.25); background: var(--blush); }
-
-.btn-cta-ghost {
-  display: inline-flex; align-items: center; gap: .6rem;
-  background: rgba(255,255,255,0.1);
-  color: white; padding: 1rem 2.5rem; border-radius: 100px;
-  font-size: .85rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 500;
-  text-decoration: none;
-  border: 1px solid rgba(255,255,255,0.2);
-  transition: all .25s;
-}
-.btn-cta-ghost:hover { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,.4); }
-
-/* ── FOOTER ── */
-footer {
-  background: var(--cream); padding: 2.2rem 4rem;
-  display: flex; justify-content: space-between; align-items: center;
-  border-top: 1px solid rgba(183,37,82,0.1);
-  position: relative; z-index: 1;
-}
-.footer-logo {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.2rem; font-style: italic; font-weight: 600; color: var(--wine);
-}
-.footer-copy { font-size: .78rem; color: var(--muted); }
-.footer-links { display: flex; gap: 1.5rem; }
-.footer-links a {
-  font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 500;
-  color: var(--wine); text-decoration: none; opacity: .5; transition: opacity .25s;
-}
-.footer-links a:hover { opacity: 1; }
-
-/* ── ANIMATIONS ── */
-@keyframes fadeUp   { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:none; } }
-@keyframes fadeRight{ from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:none; } }
-
-.reveal {
-  opacity: 0; transform: translateY(28px);
-  transition: opacity .7s cubic-bezier(.25,.46,.45,.94), transform .7s cubic-bezier(.25,.46,.45,.94);
-}
-.reveal.in { opacity:1; transform:none; }
-
-/* ── RESPONSIVE ── */
-@media (max-width: 920px) {
-  nav { padding: 1rem 1.5rem; }
-  .nav-links { display: none; }
-  .nav-portfolio-link { font-size: .65rem; padding: .3rem .65rem; }
-  section { padding: 5rem 1.5rem; }
-  #hero { grid-template-columns: 1fr; padding: 7rem 1.5rem 4rem; }
-  .hero-right { display: none; }
-  #about, #offer, .goals-top { grid-template-columns: 1fr; gap: 3rem; }
-  .services-grid, .results-grid, .goals-grid { grid-template-columns: 1fr; }
-  footer { padding: 2rem 1.5rem; flex-direction: column; gap: 1rem; text-align: center; }
-}
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Angela Alexe · Content creator a Venezia</title>
+<meta name="description" content="Angela Alexe, content creator e social media strategist a Venezia. Video, Reel ed eventi per brand, istituzioni e aziende. Fondatrice di ViralVenice.">
+<meta name="theme-color" content="#0B1418">
+<meta name="author" content="Angela Alexe">
+<link rel="canonical" href="https://alexeangela.it/">
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="it_IT">
+<meta property="og:site_name" content="Angela Alexe">
+<meta property="og:title" content="Angela Alexe · Storie che convertono">
+<meta property="og:description" content="Content creator a Venezia: video e Reel per brand, eventi e istituzioni. Guarda i lavori.">
+<meta property="og:url" content="https://alexeangela.it/">
+<meta property="og:image" content="https://alexeangela.it/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Angela Alexe, content creator a Venezia">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<script>document.documentElement.className = document.documentElement.className.replace('no-js', 'js');</script>
 </head>
 <body>
 
-<!-- BG BLOBS -->
-<div class="blob-bg">
-  <div class="blob blob-1"></div>
-  <div class="blob blob-2"></div>
-  <div class="blob blob-3"></div>
+<a class="skip" href="#lavori">Vai ai lavori</a>
+
+<!-- Acqua WebGL (sfondo). Senza WebGL resta il gradiente CSS di .water-fallback -->
+<div class="water-fallback" aria-hidden="true"></div>
+<canvas id="water" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
+
+<!-- Cursore (solo mouse) -->
+<div class="cursor" aria-hidden="true"><span class="cursor__ring"></span><span class="cursor__label">Guarda</span></div>
+
+<header class="site-header">
+  <a class="brand" href="#top" aria-label="Angela Alexe, torna all'inizio">Angela <em>Alexe</em></a>
+  <nav class="nav" aria-label="Navigazione principale">
+    <a href="#lavori">Lavori</a>
+    <a href="#chi-sono">Chi sono</a>
+    <a href="#servizi">Servizi</a>
+    <a href="#contatti">Contatti</a>
+    <a href="https://portfolio-alexe.my.canva.site/" target="_blank" rel="noopener">Portfolio <span aria-hidden="true">↗</span></a>
+  </nav>
+  <a class="btn btn--small btn--gold magnetic" href="https://wa.me/393793491386?text=Ciao%20Angela%2C%20vorrei%20collaborare%20con%20te!" target="_blank" rel="noopener">Scrivimi</a>
+  <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="menu" aria-label="Apri il menu">
+    <span></span><span></span>
+  </button>
+</header>
+
+<!-- Menu mobile -->
+<div class="menu" id="menu" hidden>
+  <nav aria-label="Menu">
+    <a href="#lavori"><small>01</small>Lavori</a>
+    <a href="#chi-sono"><small>02</small>Chi sono</a>
+    <a href="#servizi"><small>03</small>Servizi</a>
+    <a href="#contatti"><small>04</small>Contatti</a>
+    <a href="https://portfolio-alexe.my.canva.site/" target="_blank" rel="noopener"><small>05</small>Portfolio ↗</a>
+  </nav>
+  <div class="menu__foot">
+    <a href="mailto:alexeufficio@gmail.com">alexeufficio@gmail.com</a>
+    <a href="https://www.instagram.com/alexe.it/" target="_blank" rel="noopener">Instagram @alexe.it</a>
+  </div>
 </div>
 
-<!-- NAV -->
-<nav>
-  <div class="nav-brand">
-    <span class="nav-logo">Angela.</span>
-    <a href="https://portfolio-alexe.my.canva.site/" target="_blank" rel="noopener" class="nav-portfolio-link">
-      Scopri il mio portfolio ↗
-    </a>
-  </div>
-  <ul class="nav-links">
-    <li><a href="#about">Chi sono</a></li>
-    <li><a href="#services">Servizi</a></li>
-    <li><a href="#results">Risultati</a></li>
-    <li><a href="#goals">Obiettivi</a></li>
-    <li><a href="#cta">Contatti</a></li>
-  </ul>
-  <a href="https://wa.me/393793491386?text=Ciao%20Angela%2C%20vorrei%20collaborare%20con%20te!" target="_blank" rel="noopener" class="nav-cta">Scrivimi</a>
-</nav>
+<main id="top">
 
-<!-- HERO -->
-<section id="hero">
-  <div>
-    <div class="hero-eyebrow">
-      <span class="live-dot"></span>
-      Disponibile per nuovi progetti
-    </div>
-    <h1 class="hero-title">
-      Storie che<br>
-      <em>convertono.</em>
-    </h1>
-    <p class="hero-desc">
-      Sono Angela, 22 anni. Trasformo brand, aziende ed eventi in storie digitali che le persone vogliono davvero vedere. <strong>Da Venezia a Sky Italia</strong>, i risultati parlano.
+  <!-- HERO -->
+  <section class="hero" aria-labelledby="hero-title">
+    <p class="hero__meta" data-intro>
+      <span>Content creator</span>
+      <span class="sep" aria-hidden="true"></span>
+      <span>Venezia</span>
     </p>
-    <div class="hero-actions">
-      <a href="https://wa.me/393793491386?text=Ciao%20Angela%2C%20vorrei%20collaborare%20con%20te!" target="_blank" rel="noopener" class="btn-primary">
-        Lavoriamo insieme ↗
-      </a>
-      <a href="https://portfolio-alexe.my.canva.site/" target="_blank" rel="noopener" class="btn-ghost">Scopri il mio portfolio</a>
-    </div>
-  </div>
-  <div class="hero-right">
-    <div class="stat-glass">
-      <span class="stat-num">5+</span>
-      <span class="stat-label">Brand collaborazioni</span>
-    </div>
-    <div class="stat-glass">
-      <span class="stat-num">3</span>
-      <span class="stat-label">Piattaforme attive</span>
-    </div>
-    <div class="stat-glass">
-      <span class="stat-num">100%</span>
-      <span class="stat-label">Contenuti su misura</span>
-    </div>
-  </div>
-</section>
 
-<!-- TICKER -->
-<div class="ticker-wrap">
-  <div class="ticker">
-    <div class="ticker-inner">
-      <span class="tick-item">Reels &amp; Video <span class="sep">✦</span></span>
-      <span class="tick-item">Brand Storytelling <span class="sep">✦</span></span>
-      <span class="tick-item">Social Strategy <span class="sep">✦</span></span>
-      <span class="tick-item">Event Coverage <span class="sep">✦</span></span>
-      <span class="tick-item">Reels &amp; Video <span class="sep">✦</span></span>
-      <span class="tick-item">Brand Storytelling <span class="sep">✦</span></span>
-      <span class="tick-item">Social Strategy <span class="sep">✦</span></span>
-      <span class="tick-item">Event Coverage <span class="sep">✦</span></span>
-    </div>
-    <div class="ticker-inner" aria-hidden="true">
-      <span class="tick-item">Reels &amp; Video <span class="sep">✦</span></span>
-      <span class="tick-item">Brand Storytelling <span class="sep">✦</span></span>
-      <span class="tick-item">Social Strategy <span class="sep">✦</span></span>
-      <span class="tick-item">Event Coverage <span class="sep">✦</span></span>
-      <span class="tick-item">Reels &amp; Video <span class="sep">✦</span></span>
-      <span class="tick-item">Brand Storytelling <span class="sep">✦</span></span>
-      <span class="tick-item">Social Strategy <span class="sep">✦</span></span>
-      <span class="tick-item">Event Coverage <span class="sep">✦</span></span>
-    </div>
-  </div>
-</div>
+    <h1 class="hero__title" id="hero-title">
+      <span class="line"><span class="line__inner">Storie che</span></span>
+      <span class="line line--accent"><span class="line__inner">convertono.</span></span>
+    </h1>
 
-<!-- CHI SONO -->
-<section id="about">
-  <div class="about-text reveal">
-    <div class="s-label">Chi sono</div>
-    <h2 class="s-title">Ciao, sono<br><em>Angela.</em></h2>
-    <p>Ho 22 anni e sono una Content Creator con esperienza reale su brand, eventi e piattaforme televisive. Non faccio solo contenuti, costruisco narrazioni che funzionano, che crescono e che convertono.</p>
-    <p>Sono anche la fondatrice di <em>ViralVenice</em>, il progetto con cui racconto Venezia al mondo digitale, con l'obiettivo di rendere la cultura e la storia di una città unica <strong>accessibile e viva</strong> per chi non si accontenta della cartolina.</p>
-  </div>
+    <div class="hero__bottom">
+      <p class="hero__lead" data-intro>
+        Sono Angela Alexe. Giro, scrivo e monto video per brand, eventi e istituzioni:
+        contenuti che non sembrano pubblicità e che le persone guardano fino alla fine.
+      </p>
+      <div class="hero__actions" data-intro>
+        <a class="btn btn--gold magnetic" href="https://wa.me/393793491386?text=Ciao%20Angela%2C%20vorrei%20collaborare%20con%20te!" target="_blank" rel="noopener">Lavoriamo insieme <span aria-hidden="true">↗</span></a>
+        <a class="btn btn--ghost magnetic" href="#lavori">Guarda i lavori</a>
+      </div>
+    </div>
 
-  <div class="collab-wrap reveal" style="transition-delay:.15s">
-    <div class="collab-heading">Collaborazioni</div>
-    <div class="collab-list">
-      <div class="collab-item">
-        <div class="collab-dot"></div>
-        <span class="collab-name">Università Ca' Foscari Venezia</span>
-        <span class="collab-role">Content Creator</span>
-      </div>
-      <div class="collab-item">
-        <div class="collab-dot"></div>
-        <span class="collab-name">Italy Wedding Planner</span>
-        <span class="collab-role">Social Media Manager</span>
-      </div>
-      <div class="collab-item">
-        <div class="collab-dot"></div>
-        <span class="collab-name">Bravissima — Sky &amp; Canale Italia</span>
-        <span class="collab-role">Content Creator · Talent Show</span>
-      </div>
-      <div class="collab-item">
-        <div class="collab-dot"></div>
-        <span class="collab-name">SunRelax, Centro Estetico</span>
-        <span class="collab-role">UGC Creator</span>
-      </div>
-      <div class="collab-item">
-        <div class="collab-dot"></div>
-        <span class="collab-name">ViralVenice</span>
-        <span class="collab-role">Founder &amp; Creator</span>
-      </div>
+    <div class="hero__foot" data-intro>
+      <span class="coords">45°26′ N · 12°19′ E</span>
+      <span class="hint hint--mouse">Muovi il mouse sull'acqua</span>
+      <span class="hint hint--touch">Tocca l'acqua</span>
+      <button class="tilt-toggle" type="button" hidden>Attiva l'inclinazione</button>
+      <span class="scroll-cue" aria-hidden="true"><span></span></span>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- SERVIZI -->
-<section id="services">
-  <div class="reveal">
-    <div class="s-label">Servizi</div>
-    <h2 class="s-title">Cosa posso<br><em>fare per te.</em></h2>
-    <p class="section-intro">Ogni progetto inizia dall'analisi del brand, del pubblico e degli obiettivi di business. Creo contenuti su misura che parlano con il tuo pubblico nel modo più efficace, con il formato giusto, nel momento giusto.</p>
-  </div>
-  <div class="services-grid reveal" style="transition-delay:.15s">
-    <div class="svc-card">
-      <span class="svc-num">01</span>
-      <h3 class="svc-title">Content Creation</h3>
-      <p class="svc-desc">Contenuti video e testuali ottimizzati per Instagram e TikTok: Reels, Stories e video verticali pensati per catturare l'attenzione della tua nicchia target fin dai primi secondi.</p>
-    </div>
-    <div class="svc-card">
-      <span class="svc-num">02</span>
-      <h3 class="svc-title">Strategia Social</h3>
-      <p class="svc-desc">Analisi del profilo, piano editoriale mensile, tone of voice e calendario contenuti. Strategia costruita su dati concreti e obiettivi di crescita misurabili.</p>
-    </div>
-    <div class="svc-card">
-      <span class="svc-num">03</span>
-      <h3 class="svc-title">Copertura Eventi</h3>
-      <p class="svc-desc">Racconto in tempo reale dell'evento sui social. Stories, Reels e post che amplificano la reach e trasformano ogni momento in contenuto di valore per il tuo brand.</p>
-    </div>
-    <div class="svc-card">
-      <span class="svc-num">04</span>
-      <h3 class="svc-title">Brand Storytelling</h3>
-      <p class="svc-desc">Costruzione o restyling dell'identità narrativa del brand: voce, stile visivo e posizionamento unico per differenziarti dalla concorrenza e restare nella mente del tuo pubblico.</p>
-    </div>
-    <div class="svc-card">
-      <span class="svc-num">05</span>
-      <h3 class="svc-title">Video &amp; Reels</h3>
-      <p class="svc-desc">Riprese, montaggio e post-produzione di short-form content verticale e orizzontale. Format costruiti su uno storytelling emotivo e narrativo capace di trattenere l'attenzione fino all'ultimo secondo.</p>
-    </div>
-    <div class="svc-card">
-      <span class="svc-num">06</span>
-      <h3 class="svc-title">UGC Creator</h3>
-      <p class="svc-desc">Produzione di contenuti UGC autentici per campagne advertising. Video nativi che sembrano organici, pensati per convertire senza sembrare pubblicità.</p>
-    </div>
-  </div>
-</section>
+  <!-- MANIFESTO -->
+  <section class="manifesto" aria-label="Il mio approccio">
+    <p class="manifesto__text" data-words>
+      La pubblicità si salta. Una bella storia, invece, si guarda fino in fondo.
+      Parto da lì: cerco cosa c'è di vero nel tuo brand e lo trasformo in un video
+      che <em>fa fermare il pollice</em>, e poi fa venire voglia di scriverti.
+    </p>
+  </section>
 
-<!-- COSA OFFRO -->
-<section id="offer">
-  <div class="offer-intro reveal">
-    <div class="s-label">Cosa offro</div>
-    <h2 class="s-title">Il valore<br><em>che porto.</em></h2>
-    <p>Collaborare con me significa avere qualcuno che capisce davvero gli obiettivi del brand, non solo i trend del momento. Lavoro con attenzione, cura e comunicazione costante, dalla prima call al contenuto pubblicato.</p>
-  </div>
-
-  <div class="offer-items reveal" style="transition-delay:.15s">
-    <div class="offer-row">
-      <div class="offer-icon">📦</div>
-      <div>
-        <h4>Contenuti pronti alla pubblicazione</h4>
-        <p>Dal brief al file finale: accompagno il processo con una consultazione preventiva per definire obiettivi e visione, e consegno contenuti pronti da pubblicare, senza revisioni infinite.</p>
-      </div>
-    </div>
-    <div class="offer-row">
-      <div class="offer-icon">🎤</div>
-      <div>
-        <h4>Presenza fisica sul campo</h4>
-        <p>Disponibile a eventi, shooting e coperture live. Essere sul posto fa la differenza: porta autenticità, immediatezza e contenuti che le persone vogliono davvero vedere.</p>
-      </div>
-    </div>
-    <div class="offer-row">
-      <div class="offer-icon">⚡</div>
-      <div>
-        <h4>Visione giovane e aggiornata</h4>
-        <p>Vivo i social ogni giorno, non solo come creator ma come utente. Questo mi permette di intercettare i format e le tendenze prima che diventino mainstream.</p>
-      </div>
-    </div>
-    <div class="offer-row">
-      <div class="offer-icon">🔄</div>
-      <div>
-        <h4>Adattabilità totale al brand</h4>
-        <p>Ogni brand ha una voce diversa. Imparo a conoscerla, la faccio mia e creo contenuti che sembrano davvero tuoi, senza perdere l'autenticità che rende un profilo credibile.</p>
-      </div>
-    </div>
-    <div class="offer-row">
-      <div class="offer-icon">📊</div>
-      <div>
-        <h4>Reportistica e ottimizzazione</h4>
-        <p>Monitoro le performance e porto dati chiari e leggibili. La strategia si aggiusta in corsa, perché ciò che funziona oggi potrebbe non funzionare domani.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- RISULTATI -->
-<section id="results">
-  <div class="reveal">
-    <div class="s-label">Risultati</div>
-    <h2 class="s-title">I numeri<br><em>che contano.</em></h2>
-    <p class="section-intro">Ogni contenuto che produco è pensato per generare un impatto misurabile. Ecco le aree in cui ho portato valore concreto alle realtà con cui ho collaborato.</p>
-  </div>
-
-  <div class="results-grid reveal" style="transition-delay:.1s">
-    <div class="res-card">
-      <span class="res-metric">↑ Reach</span>
-      <span class="res-sublabel">Visibilità organica in crescita</span>
-      <p class="res-desc">Contenuti progettati per ampliare la reach organica e portare il brand davanti a nuove audience, senza dipendere esclusivamente dall'advertising a pagamento.</p>
-    </div>
-    <div class="res-card">
-      <span class="res-metric">↑ Engagement</span>
-      <span class="res-sublabel">Community attiva in crescita</span>
-      <p class="res-desc">Storie e format che non solo fanno fermare lo scroll, ma generano reazioni, commenti e condivisioni. Un pubblico che interagisce è un pubblico che si fida.</p>
-    </div>
-    <div class="res-card">
-      <span class="res-metric">↑ Action</span>
-      <span class="res-sublabel">Conversioni e interazioni reali</span>
-      <p class="res-desc">Contenuti costruiti con un obiettivo chiaro: trasformare l'attenzione in azioni concrete, click, messaggi, visite, prenotazioni e richieste di contatto.</p>
-    </div>
-  </div>
-
-  <!-- ── 3 REEL INSTAGRAM AFFIANCATI ── -->
-  <div class="video-row reveal" style="transition-delay:.2s">
-
-    <!-- VIDEO 1 — Ca' Foscari (con hint "Premi qui") -->
-    <a class="vid-card"
-       href="https://www.instagram.com/reel/DH5Um5yt8Og/?igsh=dmEwanQ3ZHQxdTd6"
-       target="_blank" rel="noopener"
-       aria-label="Guarda il Reel su Instagram: Angela x Università Ca' Foscari Venezia">
-      <!-- hint solo sul primo -->
-      <div class="vid-first-hint">
-        <span>Premi qui per vedere il video</span>
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 4v12m0 0l-4-4m4 4l4-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-      </div>
-      <img
-        class="vid-thumb"
-        src="https://wsrv.nl/?url=https://www.instagram.com/p/DH5Um5yt8Og/media/?size=l&w=480&output=jpg&q=85"
-        alt="Reel Ca' Foscari"
-        loading="lazy"
-        onerror="this.src='https://placehold.co/480x854/7F1330/FFC6BF?text=▶+Ca%27+Foscari'">
-      <div class="vid-overlay"></div>
-      <div class="vid-play-icon">
-        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-      </div>
-      <div class="vid-label">
-        <div class="vid-label-text">
-          <svg class="vid-ig-icon" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
-          </svg>
-          Angela x Università Ca' Foscari Venezia
+  <!-- LAVORI -->
+  <section class="works" id="lavori" aria-labelledby="works-title">
+    <div class="works__pin">
+      <div class="works__intro">
+          <p class="eyebrow">Lavori selezionati</p>
+          <h2 class="title" id="works-title">Sei video,<br><em>sei storie.</em></h2>
+          <p class="body">Ogni video si apre su Instagram, dove trovi anche come è andato:
+            visualizzazioni, like e commenti. I numeri li lascio raccontare a loro.</p>
+          <p class="works__swipe" aria-hidden="true"><span>Scorri</span> <i></i></p>
         </div>
-      </div>
-    </a>
+      <div class="works__track">
 
-    <!-- VIDEO 2 — Bravissima Talent Show -->
-    <a class="vid-card"
-       href="https://www.instagram.com/reel/DINtFgntD1H/?igsh=MW5idTB2aml6ZjQ3Ng=="
-       target="_blank" rel="noopener"
-       aria-label="Guarda il Reel su Instagram: Angela x Bravissima Talent Show">
-      <img
-        class="vid-thumb"
-        src="https://wsrv.nl/?url=https://www.instagram.com/p/DINtFgntD1H/media/?size=l&w=480&output=jpg&q=85"
-        alt="Reel Bravissima Talent Show"
-        loading="lazy"
-        onerror="this.src='https://placehold.co/480x854/7F1330/FFC6BF?text=▶+Bravissima'">
-      <div class="vid-overlay"></div>
-      <div class="vid-play-icon">
-        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-      </div>
-      <div class="vid-label">
-        <div class="vid-label-text">
-          <svg class="vid-ig-icon" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
-          </svg>
-          Angela x Bravissima Talent Show
+
+        <a class="reel" href="https://www.instagram.com/reel/DZvcCKPsWIr/" target="_blank" rel="noopener"
+           aria-label="Viral Venice, il leone di San Marco. Apri il Reel su Instagram in una nuova scheda">
+          <span class="reel__media">
+            <img src="assets/viralvenice-leone.webp" width="360" height="640" alt="" loading="lazy" decoding="async">
+            <span class="reel__sheen"></span>
+          </span>
+          <span class="reel__body">
+            <span class="reel__num">01</span>
+            <span class="reel__client">Viral Venice</span>
+            <span class="reel__title">Il leone di San Marco</span>
+            <span class="reel__tag">Contenuto informativo</span>
+            <span class="reel__cta">Guarda il Reel e i risultati <span aria-hidden="true">↗</span></span>
+          </span>
+        </a>
+
+        <a class="reel" href="https://www.instagram.com/reel/DbjQAv9N-KN/" target="_blank" rel="noopener"
+           aria-label="Italy Wedding Planner, matrimonio. Apri il Reel su Instagram in una nuova scheda">
+          <span class="reel__media">
+            <img src="assets/matrimonio.webp" width="360" height="640" alt="" loading="lazy" decoding="async">
+            <span class="reel__sheen"></span>
+          </span>
+          <span class="reel__body">
+            <span class="reel__num">02</span>
+            <span class="reel__client">Italy Wedding Planner</span>
+            <span class="reel__title">Un matrimonio sul lago</span>
+            <span class="reel__tag">Content creator · Matrimonio</span>
+            <span class="reel__cta">Guarda il Reel e i risultati <span aria-hidden="true">↗</span></span>
+          </span>
+        </a>
+
+        <a class="reel" href="https://www.instagram.com/reel/DczAAK9RWvf/" target="_blank" rel="noopener"
+           aria-label="Viral Venice, le statue parlanti di Venezia. Apri il Reel su Instagram in una nuova scheda">
+          <span class="reel__media">
+            <img src="assets/viralvenice-statue.webp" width="360" height="640" alt="" loading="lazy" decoding="async">
+            <span class="reel__sheen"></span>
+          </span>
+          <span class="reel__body">
+            <span class="reel__num">03</span>
+            <span class="reel__client">Viral Venice</span>
+            <span class="reel__title">Le statue parlanti di Venezia</span>
+            <span class="reel__tag">Storia e curiosità</span>
+            <span class="reel__cta">Guarda il Reel e i risultati <span aria-hidden="true">↗</span></span>
+          </span>
+        </a>
+
+        <a class="reel" href="https://www.instagram.com/reel/DINtFgntD1H/" target="_blank" rel="noopener"
+           aria-label="Bravissima Talent Show. Apri il Reel su Instagram in una nuova scheda">
+          <span class="reel__media">
+            <img src="assets/bravissima.webp" width="360" height="640" alt="" loading="lazy" decoding="async">
+            <span class="reel__sheen"></span>
+          </span>
+          <span class="reel__body">
+            <span class="reel__num">04</span>
+            <span class="reel__client">Bravissima Talent Show</span>
+            <span class="reel__title">Conosciamo Chanel, categoria Moda</span>
+            <span class="reel__tag">TV · Sky e Canale Italia</span>
+            <span class="reel__cta">Guarda il Reel e i risultati <span aria-hidden="true">↗</span></span>
+          </span>
+        </a>
+
+        <a class="reel" href="https://www.instagram.com/reel/DH5Um5yt8Og/" target="_blank" rel="noopener"
+           aria-label="Università Ca' Foscari Venezia. Apri il Reel su Instagram in una nuova scheda">
+          <span class="reel__media">
+            <img src="assets/cafoscari.webp" width="360" height="640" alt="" loading="lazy" decoding="async">
+            <span class="reel__sheen"></span>
+          </span>
+          <span class="reel__body">
+            <span class="reel__num">05</span>
+            <span class="reel__client">Università Ca' Foscari Venezia</span>
+            <span class="reel__title">Elezioni studentesche</span>
+            <span class="reel__tag">Comunicazione istituzionale</span>
+            <span class="reel__cta">Guarda il Reel e i risultati <span aria-hidden="true">↗</span></span>
+          </span>
+        </a>
+
+        <a class="reel" href="https://www.instagram.com/reel/DUqJmxNDEHx/" target="_blank" rel="noopener"
+           aria-label="Viral Venice, la bauta. Apri il Reel su Instagram in una nuova scheda">
+          <span class="reel__media">
+            <img src="assets/viralvenice-bauta.webp" width="360" height="640" alt="" loading="lazy" decoding="async">
+            <span class="reel__sheen"></span>
+          </span>
+          <span class="reel__body">
+            <span class="reel__num">06</span>
+            <span class="reel__client">Viral Venice</span>
+            <span class="reel__title">La bauta, l'anonimato come potere</span>
+            <span class="reel__tag">Carnevale · Episodio 15</span>
+            <span class="reel__cta">Guarda il Reel e i risultati <span aria-hidden="true">↗</span></span>
+          </span>
+        </a>
+
+        <div class="works__outro">
+          <p class="title title--sm">Il prossimo<br><em>può essere tuo.</em></p>
+          <a class="btn btn--gold magnetic" href="#contatti">Parliamone</a>
         </div>
+
       </div>
-    </a>
+    </div>
+  </section>
 
-    <!-- VIDEO 3 — Viral Venice -->
-    <a class="vid-card"
-       href="https://www.instagram.com/reel/DUqJmxNDEHx/?igsh=bDRqb3I0Mm12cXV5"
-       target="_blank" rel="noopener"
-       aria-label="Guarda il Reel su Instagram: Viral Venice">
-      <img
-        class="vid-thumb"
-        src="https://wsrv.nl/?url=https://www.instagram.com/p/DUqJmxNDEHx/media/?size=l&w=480&output=jpg&q=85"
-        alt="Reel Viral Venice"
-        loading="lazy"
-        onerror="this.src='https://placehold.co/480x854/003744/FFC6BF?text=▶+Viral+Venice'">
-      <div class="vid-overlay"></div>
-      <div class="vid-play-icon">
-        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-      </div>
-      <div class="vid-label">
-        <div class="vid-label-text">
-          <svg class="vid-ig-icon" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
-          </svg>
-          Viral Venice
-        </div>
-      </div>
-    </a>
+  <!-- CHI SONO + COLLABORAZIONI -->
+  <section class="about" id="chi-sono" aria-labelledby="about-title">
+    <div class="about__text">
+      <p class="eyebrow" data-reveal>Chi sono</p>
+      <h2 class="title" id="about-title" data-reveal>Ciao,<br>sono <em>Angela.</em></h2>
+      <p class="body" data-reveal>Ho 22 anni e faccio la content creator e la social media strategist.
+        Ho raccontato un'università, un talent show televisivo, matrimoni e aziende del territorio,
+        sempre con la stessa idea: un contenuto funziona quando è vero.</p>
+      <p class="body" data-reveal>Nel frattempo ho fondato <strong>ViralVenice</strong>, il mio progetto personale:
+        storia, curiosità e leggende di Venezia spiegate in un minuto, per chi vuole conoscere la città
+        oltre la cartolina.</p>
+    </div>
 
-  </div><!-- /video-row -->
-</section>
+    <div class="about__collabs">
+      <p class="eyebrow" data-reveal>Collaborazioni</p>
+      <ul class="collabs">
+        <li data-reveal><span class="collabs__name">Università Ca' Foscari Venezia</span><span class="collabs__role">Content creator</span></li>
+        <li data-reveal><span class="collabs__name">Bravissima, Sky e Canale Italia</span><span class="collabs__role">Content creator · Talent show</span></li>
+        <li data-reveal><span class="collabs__name">Italy Wedding Planner</span><span class="collabs__role">Social media manager</span></li>
+        <li data-reveal><span class="collabs__name">I Love You Venice</span><span class="collabs__role">Content creator</span></li>
+        <li data-reveal><span class="collabs__name">Dealer Day</span><span class="collabs__role">Content creator</span></li>
+        <li data-reveal><span class="collabs__name">Veneto Creator</span><span class="collabs__role">Con Viral Venice</span></li>
+        <li data-reveal><span class="collabs__name">SunRelax, centro estetico</span><span class="collabs__role">UGC creator</span></li>
+        <li data-reveal><span class="collabs__name">ViralVenice</span><span class="collabs__role">Fondatrice e creator</span></li>
+      </ul>
+    </div>
+  </section>
 
-<!-- OBIETTIVI -->
-<section id="goals">
-  <div class="goals-top reveal">
-    <div>
-      <div class="s-label">Obiettivi</div>
-      <h2 class="s-title">Cosa voglio<br>portare alla<br><em>tua azienda.</em></h2>
+  <!-- SERVIZI (unisce Servizi, Cosa offro, Obiettivi) -->
+  <section class="services" id="servizi" aria-labelledby="services-title">
+    <div class="services__head">
+      <p class="eyebrow" data-reveal>Servizi</p>
+      <h2 class="title" id="services-title" data-reveal>Cosa posso<br><em>fare per te.</em></h2>
+      <p class="body" data-reveal>Lavoro con brand, eventi, enti culturali e aziende che vogliono farsi notare
+        sui social senza perdere la propria voce.</p>
     </div>
-    <p>Definire gli obiettivi è il primo passo di ogni collaborazione. Lavoro per raggiungere risultati concreti e misurabili, non impressioni generiche, ma impatto reale sul tuo brand e sul tuo business.</p>
-  </div>
-  <div class="goals-grid reveal" style="transition-delay:.15s">
-    <div class="goal-card">
-      <span class="goal-icon">📈</span>
-      <div class="goal-title">Crescita della presenza</div>
-      <p class="goal-text">Aumentare visibilità, follower e reach attraverso contenuti pubblicati con costanza, coerenza e strategia. Costruire una presenza digitale che duri nel tempo.</p>
-    </div>
-    <div class="goal-card">
-      <span class="goal-icon">🤝</span>
-      <div class="goal-title">Connessione autentica</div>
-      <p class="goal-text">Creare un rapporto genuino tra brand e pubblico. Non mi interessa solo far crescere i numeri, ma costruire una community che crede in ciò che rappresenti.</p>
-    </div>
-    <div class="goal-card">
-      <span class="goal-icon">🎯</span>
-      <div class="goal-title">Conversioni reali</div>
-      <p class="goal-text">Trasformare la visibilità in azioni concrete: richieste di informazioni, prenotazioni, acquisti. Ogni contenuto ha un obiettivo, e quell'obiettivo deve essere raggiunto.</p>
-    </div>
-    <div class="goal-card">
-      <span class="goal-icon">🏆</span>
-      <div class="goal-title">Differenziazione</div>
-      <p class="goal-text">Far emergere il tuo brand con un posizionamento unico e riconoscibile. Costruire un'identità digitale che si distingua dalla concorrenza e rimanga nella memoria del pubblico.</p>
-    </div>
-  </div>
-</section>
 
-<!-- CTA -->
-<section id="cta">
-  <div class="cta-inner reveal">
-    <div class="cta-pill">Aperta a collaborazioni</div>
-    <h2 class="cta-title">
-      Costruiamo<br>qualcosa <em>insieme.</em>
-    </h2>
-    <p class="cta-sub">Se il tuo brand ha bisogno di una presenza digitale più forte, più autentica e più strategica, sono qui per costruirla con te. Raccontami il tuo progetto.</p>
-    <div class="cta-buttons">
-      <a href="https://wa.me/393793491386?text=Ciao%20Angela%2C%20vorrei%20collaborare%20con%20te!" target="_blank" rel="noopener" class="btn-cta-main">Scrivimi ora ✦</a>
-      <a href="https://www.instagram.com/alexe.it?igsh=MWV3ajh0cHhvYXRuZQ%3D%3D&utm_source=qr" target="_blank" rel="noopener" class="btn-cta-ghost">Instagram →</a>
-    </div>
-  </div>
-</section>
+    <ol class="services__list">
+      <li class="service" data-reveal>
+        <span class="service__num">01</span>
+        <h3 class="service__title">Video e Reel</h3>
+        <p class="service__text">Idea, riprese e montaggio. Video verticali per Instagram, TikTok e YouTube Shorts,
+          pensati per tenere l'attenzione dal primo all'ultimo secondo.</p>
+      </li>
+      <li class="service" data-reveal>
+        <span class="service__num">02</span>
+        <h3 class="service__title">Strategia social</h3>
+        <p class="service__text">Analisi del profilo, piano editoriale e tono di voce. Decidiamo cosa pubblicare,
+          quando e perché, e lo correggiamo guardando i dati.</p>
+      </li>
+      <li class="service" data-reveal>
+        <span class="service__num">03</span>
+        <h3 class="service__title">Eventi dal vivo</h3>
+        <p class="service__text">Vengo sul posto e racconto l'evento mentre succede, con stories e Reel che fanno
+          sentire lì anche chi non c'era.</p>
+      </li>
+      <li class="service" data-reveal>
+        <span class="service__num">04</span>
+        <h3 class="service__title">UGC e storytelling</h3>
+        <p class="service__text">Video in stile nativo per le campagne adv e un racconto del brand riconoscibile,
+          che suoni come te e non come tutti gli altri.</p>
+      </li>
+    </ol>
 
-<!-- FOOTER -->
-<footer>
-  <div class="footer-logo">Angela.</div>
-  <p class="footer-copy">Angela Alexe — Content Creator</p>
-  <a href="mailto:alexeufficio@gmail.com" class="footer-copy" style="text-decoration:none; opacity:.6; transition: opacity .25s;">alexeufficio@gmail.com</a>
-  <div class="footer-links">
-    <a href="https://www.instagram.com/alexe.it?igsh=MWV3ajh0cHhvYXRuZQ%3D%3D&utm_source=qr" target="_blank" rel="noopener">Instagram</a>
-    <a href="https://www.tiktok.com/@viralvenice" target="_blank" rel="noopener">TikTok</a>
-  </div>
+    <div class="process">
+      <p class="eyebrow" data-reveal>Come lavoriamo</p>
+      <ol class="process__steps">
+        <li data-reveal><span>I</span><p><strong>Ci sentiamo.</strong> Una call per capire obiettivi, pubblico e tono.</p></li>
+        <li data-reveal><span>II</span><p><strong>Creo.</strong> Ti propongo idee e format, poi giro e monto.</p></li>
+        <li data-reveal><span>III</span><p><strong>Pubblichi.</strong> Ricevi contenuti pronti e un resoconto chiaro di come sono andati.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- CONTATTI -->
+  <section class="contact" id="contatti" aria-labelledby="contact-title">
+    <p class="eyebrow" data-reveal>Contatti</p>
+    <h2 class="contact__title" id="contact-title" data-reveal>Raccontami<br><em>il tuo progetto.</em></h2>
+    <p class="body contact__lead" data-reveal>Hai un brand, un evento o un luogo da raccontare?
+      Scrivimi due righe: ti rispondo io, di persona.</p>
+    <div class="contact__actions" data-reveal>
+      <a class="btn btn--gold btn--big magnetic" href="https://wa.me/393793491386?text=Ciao%20Angela%2C%20vorrei%20collaborare%20con%20te!" target="_blank" rel="noopener">Scrivimi su WhatsApp <span aria-hidden="true">↗</span></a>
+      <a class="btn btn--ghost btn--big magnetic" href="mailto:alexeufficio@gmail.com?subject=Collaborazione">alexeufficio@gmail.com</a>
+    </div>
+    <ul class="contact__links" data-reveal>
+      <li><a href="https://www.instagram.com/alexe.it/" target="_blank" rel="noopener">Instagram <span>@alexe.it</span></a></li>
+      <li><a href="https://www.instagram.com/viralvenice/" target="_blank" rel="noopener">ViralVenice <span>Instagram</span></a></li>
+      <li><a href="https://www.tiktok.com/@viralvenice" target="_blank" rel="noopener">TikTok <span>@viralvenice</span></a></li>
+      <li><a href="https://portfolio-alexe.my.canva.site/" target="_blank" rel="noopener">Portfolio <span>completo ↗</span></a></li>
+    </ul>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <span class="brand brand--small">Angela <em>Alexe</em></span>
+  <span>Content creator · Venezia</span>
+  <span>© <span data-year>2026</span></span>
 </footer>
 
-<script>
-  // ── Reveal on scroll ──
-  const obs = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); } });
-  }, { threshold: 0.12 });
-  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
-</script>
+<script src="assets/vendor/gsap.min.js" defer></script>
+<script src="assets/vendor/ScrollTrigger.min.js" defer></script>
+<script src="assets/vendor/lenis.min.js" defer></script>
+<script type="module" src="assets/js/main.js"></script>
 </body>
 </html>
