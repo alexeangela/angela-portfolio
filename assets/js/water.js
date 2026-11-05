@@ -24,6 +24,7 @@ const frag = /* glsl */`
   uniform vec4  uTitleRect;  // x, y(top), w, h in pixel del buffer (y dall'alto)
   uniform float uTitleAlpha;
   uniform float uQuality;    // 1 desktop, 0 mobile
+  uniform float uDropLimit;
 
   float hash(vec2 p){ p = fract(p*vec2(123.34, 456.21)); p += dot(p, p+45.32); return fract(p.x*p.y); }
   float noise(vec2 p){
@@ -48,6 +49,7 @@ const frag = /* glsl */`
     h += sin(q.y*6.0 + t*0.9 + fbm(q*0.8)*4.0) * 0.06;
     // increspature dei punti di contatto
     for(int i=0;i<${MAX_DROPS};i++){
+      if(float(i) >= uDropLimit) break;
       vec4 d = uDrops[i];
       float age = t - d.z;
       if(d.w <= 0.0 || age < 0.0 || age > 4.0) continue;
@@ -128,9 +130,16 @@ const frag = /* glsl */`
   }
 `;
 
-export function createWater(canvas, { mobile = false } = {}) {
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false, powerPreference: mobile ? 'low-power' : 'high-performance' });
-  const scale = mobile ? Math.min(window.devicePixelRatio, 1) * 0.6 : Math.min(window.devicePixelRatio, 1.5) * 0.75;
+export function createWater(canvas, { mobile = false, onLost } = {}) {
+  const renderer = new THREE.WebGLRenderer({
+    canvas,
+    antialias: false,
+    alpha: false,
+    powerPreference: mobile ? 'low-power' : 'high-performance',
+    failIfMajorPerformanceCaveat: !!mobile,
+  });
+  const dpr = window.devicePixelRatio || 1;
+  const scale = mobile ? Math.min(dpr, 1) * 0.5 : Math.min(dpr, 1.5) * 0.75;
   renderer.setPixelRatio(scale);
 
   const scene = new THREE.Scene();
@@ -151,11 +160,13 @@ export function createWater(canvas, { mobile = false } = {}) {
     uTitleRect: { value: new THREE.Vector4(0, 0, 1, 1) },
     uTitleAlpha: { value: 0 },
     uQuality: { value: mobile ? 0 : 1 },
+    uDropLimit: { value: mobile ? 6 : MAX_DROPS },
   };
   const mat = new THREE.ShaderMaterial({ vertexShader: vert, fragmentShader: frag, uniforms, depthTest: false, depthWrite: false });
   scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat));
 
-  let w = 1, h = 1, dropIdx = 0, running = true, last = performance.now(), t = 0;
+  let w = 1, h = 1, dropIdx = 0, running = true, paused = false, last = performance.now(), t = 0;
+  const frameMs = mobile ? 1000 / 30 : 0;
   const target = { mouse: new THREE.Vector2(0, -2), on: 0, tilt: new THREE.Vector2() };
   let titleBox = null; // {x, y(page), w, h} in CSS px
   let scrollY = 0;
@@ -210,8 +221,23 @@ export function createWater(canvas, { mobile = false } = {}) {
   let titleAlpha = 0;
   function showTitle(v) { titleAlpha = v; }
 
+  let lost = false;
+  function setPaused(v) {
+    paused = !!v;
+    if (!paused) last = performance.now();
+  }
+  function fail(event) {
+    if (event && event.preventDefault) event.preventDefault();
+    if (lost) return;
+    lost = true;
+    running = false;
+    onLost?.();
+  }
   function frame(now) {
     if (!running) return;
+    requestAnimationFrame(frame);
+    if (paused || document.hidden) { last = now; return; }
+    if (frameMs && now - last < frameMs) return;
     const dt = Math.min((now - last) / 1000, 0.05); last = now; t += dt;
     uniforms.uTime.value = t;
     uniforms.uMouse.value.lerp(target.mouse, 1 - Math.pow(0.001, dt));
@@ -222,17 +248,25 @@ export function createWater(canvas, { mobile = false } = {}) {
       const pr = renderer.getPixelRatio();
       uniforms.uTitleRect.value.set(titleBox.x * pr, (titleBox.y - scrollY) * pr, titleBox.w * pr, titleBox.h * pr);
     }
-    renderer.render(scene, camera);
-    requestAnimationFrame(frame);
+    try { renderer.render(scene, camera); }
+    catch { fail(); }
   }
 
+  let resizeTimer;
+  function onResize() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(resize, mobile ? 180 : 60);
+  }
   resize();
-  window.addEventListener('resize', resize);
+  window.addEventListener('resize', onResize);
+  window.visualViewport?.addEventListener('resize', onResize);
+  canvas.addEventListener('webglcontextlost', fail);
   document.addEventListener('visibilitychange', () => {
+    if (lost) return;
     if (document.hidden) running = false;
     else if (!running) { running = true; last = performance.now(); requestAnimationFrame(frame); }
   });
   requestAnimationFrame(frame);
 
-  return { drop, pointer, pointerLeave, tilt, setScroll, setTitle, showTitle, resize };
+  return { drop, pointer, pointerLeave, tilt, setScroll, setTitle, showTitle, resize, setPaused };
 }
