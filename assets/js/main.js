@@ -2,16 +2,19 @@
 const root = document.documentElement;
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-const isMobile = !finePointer || Math.min(window.innerWidth, window.innerHeight) < 700;
+const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
+const narrowQuery = window.matchMedia('(max-width: 899px)');
+const isMobile = narrowQuery.matches || coarsePointer || !finePointer;
 const hasGSAP = typeof window.gsap !== 'undefined' && typeof window.ScrollTrigger !== 'undefined';
 if (!reduceMotion && hasGSAP) root.classList.add('motion');
 
 document.querySelectorAll('[data-year]').forEach((el) => { el.textContent = new Date().getFullYear(); });
 
-/* ---------- Scroll morbido (Lenis) ---------- */
+/* ---------- Scroll: Lenis solo su desktop con mouse. Sul telefono resta lo scroll nativo. ---------- */
 let lenis = null;
-if (!reduceMotion && typeof window.Lenis !== 'undefined') {
-  lenis = new window.Lenis({ duration: 1.15, smoothWheel: true, syncTouch: false, anchors: { offset: 0 } });
+const enableLenis = !reduceMotion && finePointer && !coarsePointer && window.innerWidth >= 1024 && typeof window.Lenis !== 'undefined';
+if (enableLenis) {
+  lenis = new window.Lenis({ duration: 1.15, smoothWheel: true, syncTouch: false, anchors: false });
   if (hasGSAP) {
     lenis.on('scroll', window.ScrollTrigger.update);
     window.gsap.ticker.add((time) => lenis.raf(time * 1000));
@@ -22,8 +25,20 @@ if (!reduceMotion && typeof window.Lenis !== 'undefined') {
   }
 }
 function scrollToTarget(target) {
-  if (lenis) lenis.scrollTo(target, { offset: 0, duration: 1.4 });
-  else (typeof target === 'string' ? document.querySelector(target) : target)?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
+  const behavior = reduceMotion ? 'auto' : 'smooth';
+  if (typeof target === 'number') {
+    if (lenis) lenis.scrollTo(target, { duration: reduceMotion ? 0 : 1.1 });
+    else window.scrollTo({ top: target, behavior });
+    return;
+  }
+  const el = typeof target === 'string' ? document.querySelector(target) : target;
+  if (!el) return;
+  if (lenis) {
+    const pad = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+    lenis.scrollTo(el, { offset: -pad, duration: reduceMotion ? 0 : 1.15 });
+  } else {
+    el.scrollIntoView({ behavior, block: 'start' });
+  }
 }
 document.querySelectorAll('a[href^="#"]').forEach((a) => {
   a.addEventListener('click', (e) => {
@@ -49,22 +64,47 @@ function onScrollHeader(y) {
 const toggle = document.querySelector('.menu-toggle');
 const menu = document.getElementById('menu');
 let menuOpen = false;
+let lockY = 0;
+function lockScroll() {
+  lockY = window.scrollY || document.documentElement.scrollTop || 0;
+  root.classList.add('menu-open');
+  document.body.style.position = 'fixed';
+  document.body.style.top = `-${lockY}px`;
+  document.body.style.left = '0';
+  document.body.style.right = '0';
+  document.body.style.width = '100%';
+  lenis?.stop();
+  water?.setPaused?.(true);
+}
+function unlockScroll() {
+  root.classList.remove('menu-open');
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.left = '';
+  document.body.style.right = '';
+  document.body.style.width = '';
+  lenis?.start();
+  window.scrollTo(0, lockY);
+  if (lenis) lenis.scrollTo(lockY, { immediate: true });
+  water?.setPaused?.(false);
+}
 function openMenu() {
   menuOpen = true; menu.hidden = false;
-  requestAnimationFrame(() => menu.classList.add('is-open'));
+  menu.classList.add('is-open');
   toggle.setAttribute('aria-expanded', 'true'); toggle.setAttribute('aria-label', 'Chiudi il menu');
   header.classList.remove('is-hidden');
-  lenis?.stop(); document.body.style.overflow = 'hidden';
+  lockScroll();
   menu.querySelector('a')?.focus({ preventScroll: true });
 }
 function closeMenu() {
   if (!menuOpen) return;
   menuOpen = false; menu.classList.remove('is-open');
+  menu.hidden = true;
   toggle.setAttribute('aria-expanded', 'false'); toggle.setAttribute('aria-label', 'Apri il menu');
-  lenis?.start(); document.body.style.overflow = '';
-  setTimeout(() => { if (!menuOpen) menu.hidden = true; }, 400);
+  unlockScroll();
 }
 toggle.addEventListener('click', () => (menuOpen ? closeMenu() : openMenu()));
+menu.querySelectorAll('a[href^="http"]').forEach((a) => a.addEventListener('click', () => closeMenu()));
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && menuOpen) { closeMenu(); toggle.focus(); } });
 window.matchMedia('(min-width: 900px)').addEventListener('change', (m) => { if (m.matches) closeMenu(); });
 
@@ -106,11 +146,33 @@ const canvas = document.getElementById('water');
 function webglOK() {
   try { const c = document.createElement('canvas'); return !!(c.getContext('webgl2') || c.getContext('webgl')); } catch { return false; }
 }
+function staticWaterPreferred() {
+  if (reduceMotion) return true;
+  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if (conn && (conn.saveData || conn.effectiveType === 'slow-2g' || conn.effectiveType === '2g')) return true;
+  if (navigator.deviceMemory && navigator.deviceMemory <= 2) return true;
+  return false;
+}
+async function batteryTooLow() {
+  try {
+    if (!isMobile || typeof navigator.getBattery !== 'function') return false;
+    const battery = await navigator.getBattery();
+    return !battery.charging && battery.level > 0 && battery.level <= 0.15;
+  } catch { return false; }
+}
 async function startWater() {
+  if (staticWaterPreferred() || await batteryTooLow()) { root.classList.add('no-webgl'); return; }
   if (!webglOK()) { root.classList.add('no-webgl'); return; }
   try {
     const { createWater } = await import('./water.js');
-    water = createWater(canvas, { mobile: isMobile });
+    water = createWater(canvas, {
+      mobile: isMobile,
+      onLost() {
+        water = null;
+        root.classList.remove('webgl-ready');
+        root.classList.add('no-webgl');
+      },
+    });
     root.classList.add('webgl-ready');
     const title = document.querySelector('.hero__title');
     const drawTitle = () => water && water.setTitle(title);
@@ -130,21 +192,57 @@ async function startWater() {
   }
 }
 
-/* Puntatore → acqua (mouse e dita) */
+/* Puntatore → acqua. Lo scroll verticale col dito non genera onde e non blocca la pagina. */
 let lastDrop = { x: -999, y: -999, t: 0 };
+let gesture = null;
+window.addEventListener('pointerdown', (e) => {
+  gesture = { x: e.clientX, y: e.clientY, type: e.pointerType, scroll: false, t: performance.now() };
+  if (e.pointerType === 'mouse') {
+    water?.drop(e.clientX, e.clientY, 1.1);
+    water?.pointer(e.clientX, e.clientY);
+  }
+}, { passive: true });
 window.addEventListener('pointermove', (e) => {
   if (!water) return;
+  if (e.pointerType !== 'mouse') {
+    if (!gesture) return;
+    const dx = e.clientX - gesture.x;
+    const dy = e.clientY - gesture.y;
+    if (!gesture.scroll && Math.hypot(dx, dy) > 12 && Math.abs(dy) >= Math.abs(dx)) gesture.scroll = true;
+    if (gesture.scroll) return;
+  }
   water.pointer(e.clientX, e.clientY);
   const now = performance.now();
   const d = Math.hypot(e.clientX - lastDrop.x, e.clientY - lastDrop.y);
-  if (d > (e.pointerType === 'mouse' ? 70 : 40) && now - lastDrop.t > 70) {
-    water.drop(e.clientX, e.clientY, e.pointerType === 'mouse' ? 0.35 : 0.55);
+  if (d > (e.pointerType === 'mouse' ? 70 : 36) && now - lastDrop.t > 90) {
+    water.drop(e.clientX, e.clientY, e.pointerType === 'mouse' ? 0.35 : 0.45);
     lastDrop = { x: e.clientX, y: e.clientY, t: now };
   }
 }, { passive: true });
-window.addEventListener('pointerdown', (e) => { water?.drop(e.clientX, e.clientY, 1.1); water?.pointer(e.clientX, e.clientY); }, { passive: true });
 document.addEventListener('pointerleave', () => water?.pointerLeave());
-window.addEventListener('pointerup', (e) => { if (e.pointerType !== 'mouse') setTimeout(() => water?.pointerLeave(), 600); }, { passive: true });
+window.addEventListener('pointerup', (e) => {
+  if (e.pointerType === 'mouse') return;
+  const g = gesture;
+  gesture = null;
+  if (!water) return;
+  const moved = g ? Math.hypot(e.clientX - g.x, e.clientY - g.y) : 99;
+  if (g && !g.scroll && moved < 16) {
+    water.drop(e.clientX, e.clientY, 1);
+    water.pointer(e.clientX, e.clientY);
+  }
+  setTimeout(() => water?.pointerLeave(), 650);
+}, { passive: true });
+window.addEventListener('pointercancel', () => { gesture = null; water?.pointerLeave(); }, { passive: true });
+
+if (isMobile) {
+  let scrollIdle;
+  window.addEventListener('scroll', () => {
+    if (menuOpen) return;
+    water?.setPaused?.(true);
+    clearTimeout(scrollIdle);
+    scrollIdle = setTimeout(() => { if (!menuOpen) water?.setPaused?.(false); }, 180);
+  }, { passive: true });
+}
 
 /* Giroscopio, solo su richiesta */
 const tiltBtn = document.querySelector('.tilt-toggle');
